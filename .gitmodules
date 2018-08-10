@@ -1,0 +1,3 @@
+[submodule "contracts/erc20"]
+	path = contracts/erc20
+	url = git@github.com:LootSafe/lootsafe.marketplace.contracts.git
