@@ -21,6 +21,7 @@ header .navi {
 	width: 20%;
 }
 
+
 .soon a, .soon i{
 	color: #535d7b !important;
 }
@@ -463,4 +464,35 @@ td {
 
 .center {
 	text-align: center;
+}
+
+
+.market-dropdown {
+  position: absolute;
+  top: 3rem;
+  width: 8rem;
+  background: #2f2e4b;
+  color: #a1a2cd;
+  z-index: 2;
+  margin-left: 1.5rem;
+}
+
+.market-dropdown ul {
+  margin: 0;
+  padding: 0;
+  height: auto !important;
+}
+
+.market-dropdown ul li {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  width: 10rem !important;
+  height: auto !important;
+  text-align: left !important;
+  font-size: 10pt!important;
+}
+
+.market-dropdown ul li:hover {
+  cursor: pointer;
+  color: #fff;
 }

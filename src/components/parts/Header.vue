@@ -16,10 +16,15 @@
       <ul>
         <li>
           <span class="market_select">MARKET</span>
-          <a href="#">
-            LOOTSAFE
+          <a href="#" v-on:click="toggleMarketSelectDropdown()">
+            {{ $parent.market.name.toUpperCase() }}
             <i class="fa fa-sort-down"></i>
           </a>
+          <div v-if="showMarketSelect" class="market-dropdown">
+            <ul v-for="market in markets" v-bind:key="market._id">
+              <li v-on:click="setMarket(market)"><i class="far fa-plus"> </i> Use {{ market.name }}</li>
+            </ul>
+          </div>
         </li>
         <li style="margin-right: 0;">
           <a href="#">
@@ -41,10 +46,36 @@
 </template>
 
 <script>
+import { apiAddress } from '../../config'
+
 export default {
   name: 'Header',
+  created () {
+    this.getMarkets()
+  },
+  methods: {
+    toggleMarketSelectDropdown: function () {
+      this.showMarketSelect = !this.showMarketSelect
+    },
+    setMarket: function (market) {
+      this.$parent.market = market
+      this.showMarketSelect = false
+    },
+    getMarkets: function () {
+      fetch(`${apiAddress}/market/list`)
+        .then((response) => {
+          return response.json()
+        })
+        .then((json) => {
+          this.markets = json.data
+        })
+    }
+  },
   data () {
-    return {}
+    return {
+      showMarketSelect: false,
+      markets: []
+    }
   }
 }
 </script>

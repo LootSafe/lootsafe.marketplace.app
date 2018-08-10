@@ -25,7 +25,13 @@ export default {
   },
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      market: {
+        '_id': '5b654c17910a780b70365fd5',
+        'name': 'LootSafe',
+        'address': '0x7A5aC300d71fe143b31e8f05D8816155570a7a74',
+        'token_type': 'ERC20'
+      }
     }
   }
 }
