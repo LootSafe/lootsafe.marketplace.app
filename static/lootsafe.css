@@ -93,6 +93,19 @@ header .navi ul li a:hover {
 
 }
 
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    color: #eeeeee;
+  }
+  100% {
+    color: #0984e3;
+  }
+}
+
 header .navi_two {
 	height: 3rem;
 	position: absolute;

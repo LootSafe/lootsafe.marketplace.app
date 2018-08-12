@@ -17,6 +17,8 @@ import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
 import GetMetamask from '@/components/parts/GetMetamask'
 
+import marketABI from '../../contracts/erc20/build/contracts/Market.json'
+
 import Eth from 'ethjs'
 
 export default {
@@ -30,6 +32,7 @@ export default {
   },
   created () {
     this.checkWeb3()
+    this.getVault()
   },
   methods: {
     checkWeb3: function () {
@@ -40,10 +43,21 @@ export default {
       } else {
         this.web3status = 'missing'
       }
+    },
+    getVault: function () {
+      const marketAddress = this.market.address
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+
+      contract.vaults.call(web3.eth.coinbase, (err, resp) => {
+        if (err) console.warn('Error getting vault address', err)
+        this.vault = resp
+      })
     }
   },
   data () {
     return {
+      vault: '0x0000000000000000000000000000000000000000',
       web3status: 'pending',
       msg: 'Welcome to Your Vue.js App',
       injectedw3: null,

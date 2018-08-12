@@ -40,7 +40,7 @@
               </span>
             </td>
             <td class="controls">
-              <button v-if="$parent.web3status === 'connected'" v-on:click="fulfill(listing)">FULFILL</button>
+              <button v-if="$parent.web3status === 'connected' && $parent.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
               <button v-else class="disabled">FULFILL</button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
               <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
@@ -80,8 +80,8 @@ export default {
   },
   created () {
     this.getListings('')
+    // TODO: poll listings
   },
-
   methods: {
     generateBlockies: seed => {
       return blockies.createDataURL({ seed })
@@ -137,9 +137,8 @@ export default {
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)
-      console.log(contract)
-      console.log(listingId)
       contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, function (resp) {
+        // TODO: Listing fulfilled popup
         console.log(resp)
       })
     }

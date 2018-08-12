@@ -5,7 +5,7 @@
         <i :class="$parent.$parent.activeLink === '/' ? 'fal fa-home active' : 'fal fa-home'"></i>
       </li>
       <li v-on:click="setActiveLink('vault')">
-        <i :class="$parent.$parent.activeLink === 'vault' ? 'fal fa-wallet active' : 'fal fa-wallet'"></i>
+        <i :class="$parent.$parent.activeLink === 'vault' ? 'fal fa-wallet active' : flashVault ? 'fal fa-wallet pulse' : 'fal fa-wallet'"></i>
       </li>
       <li>
         <i class="fal fa-ticket"></i>
@@ -18,16 +18,39 @@
 </template>
 
 <script>
+import { provider } from '../../config'
+
+import Eth from 'ethjs'
+import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
+
+const eth = new Eth(new Eth.HttpProvider(provider))
+
 export default {
   name: 'Sidebar',
   methods: {
     setActiveLink: function (route) {
       this.$parent.$parent.activeLink = route
       this.$router.push(route)
+    },
+    getVault: function () {
+      const marketAddress = this.$parent.market.address
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+
+      contract.vaults.call(web3.eth.coinbase, (err, resp) => {
+        if (err) console.warn('Error getting vault address', err)
+        if (resp === '0x0000000000000000000000000000000000000000') {
+          this.flashVault = true
+        }
+      })
     }
+  },
+  created () {
+    this.getVault()
   },
   data () {
     return {
+      flashVault: false,
       activeLink: '/'
     }
   }
