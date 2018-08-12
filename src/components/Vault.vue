@@ -5,7 +5,7 @@
     <Sidebar />
     <Chat />
     <div id="main_content">
-      <Listings />
+      <Vault />
     </div>
   </div>
 </template>
@@ -16,8 +16,13 @@ import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
 import GetMetamask from '@/components/parts/GetMetamask'
+import Vault from '@/components/parts/Vault'
+import { provider } from '../config'
 
 import Eth from 'ethjs'
+import marketABI from '../../contracts/erc20/build/contracts/Market.json'
+
+const eth = new Eth(new Eth.HttpProvider(provider))
 
 export default {
   name: 'HelloWorld',
@@ -26,10 +31,12 @@ export default {
     Sidebar,
     Chat,
     Listings,
-    GetMetamask
+    GetMetamask,
+    Vault
   },
   created () {
     this.checkWeb3()
+    this.getVault()
   },
   methods: {
     checkWeb3: function () {
@@ -40,10 +47,45 @@ export default {
       } else {
         this.web3status = 'missing'
       }
+    },
+    getVault: function () {
+      const marketAddress = this.market.address
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+
+      contract.vaults.call(web3.eth.coinbase, (err, resp) => {
+        if (err) console.warn('Error getting vault address', err)
+        this.vault = resp
+      })
+    },
+    createVault: function () {
+      const marketAddress = this.market.address
+      const marketplace = marketABI.abi
+
+      web3.eth.sendTransaction({
+        from: web3.eth.coinbase,
+        to: marketAddress,
+        value: 0,
+        data: '0x0a'
+      }, (err, resp) => {
+        this.createTx = resp
+        this.pollVault()
+      })
+    },
+    pollVault: function () {
+      this.vaultCheck = setInterval(() => {
+        this.getVault()
+        if (this.vault !== '0x0000000000000000000000000000000000000000') {
+          clearInterval(this.vaultCheck)
+        }
+      }, 5000)
     }
   },
   data () {
     return {
+      vaultCheck: false,
+      createTx: false,
+      vault: '0x0000000000000000000000000000000000000000',
       web3status: 'pending',
       msg: 'Welcome to Your Vue.js App',
       injectedw3: null,

@@ -40,7 +40,8 @@
               </span>
             </td>
             <td class="controls">
-              <button>FULFILL</button>
+              <button v-if="$parent.web3status === 'connected'" v-on:click="fulfill(listing)">FULFILL</button>
+              <button v-else class="disabled">FULFILL</button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
               <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
             </td>
@@ -60,6 +61,7 @@ import blockies from 'ethereum-blockies-png'
 
 import ETH from 'ethjs'
 import { abi } from '../../../contracts/erc20/build/contracts/EIP20.json'
+import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
 
 const eth = new ETH(new ETH.HttpProvider(provider))
 
@@ -90,7 +92,8 @@ export default {
     },
     getListings: function (keywords) {
       let payload = {
-        market_address: this.$parent.market.address
+        market_address: this.$parent.market.address,
+        status: 0
       }
 
       let parts = keywords.split(',')
@@ -128,6 +131,17 @@ export default {
             }
           })
         })
+    },
+    fulfill: function (listing) {
+      const marketAddress = this.$parent.market.address
+      const listingId = listing.id
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+      console.log(contract)
+      console.log(listingId)
+      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, function (resp) {
+        console.log(resp)
+      })
     }
   }
 }

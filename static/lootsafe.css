@@ -85,6 +85,14 @@ header .navi ul li a:hover {
 	color: #ccc;
 }
 
+
+.full_input {
+	width: calc(100% - 1rem);
+  background: #151723;
+  margin: 0;
+
+}
+
 header .navi_two {
 	height: 3rem;
 	position: absolute;
@@ -495,4 +503,52 @@ td {
 .market-dropdown ul li:hover {
   cursor: pointer;
   color: #fff;
+}
+
+
+#get_metamask {
+  position: absolute;
+  z-index: 4;
+  width: 25rem;
+  heigth: 25rem;
+  left: calc(50% - 13.5rem);
+  top: calc(50% - 20.5rem);
+  background: #1e2031;
+  color: #eeeeee;
+  padding: 2rem;
+  text-align: center;
+}
+
+.popupmask {
+  z-index: 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+
+.disabled {
+  background: #2d3436 !important;
+  cursor: not-allowed !important;
+}
+
+#vault {
+  padding: 0rem 2rem;
+  color: #a1a2cd;
+}
+
+#vault h1 {
+  font-weight: 100;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #2f2e4b;
+  margin: 1em 0;
+  padding: 0;
 }
