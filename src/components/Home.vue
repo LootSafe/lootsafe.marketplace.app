@@ -11,6 +11,7 @@
 </template>
 
 <script>
+/* global web3 */
 import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
@@ -64,7 +65,7 @@ export default {
       market: {
         '_id': '5b654c17910a780b70365fd5',
         'name': 'LootSafe',
-        'address': '0x7A5aC300d71fe143b31e8f05D8816155570a7a74',
+        'address': '0x71B9eefa10FB0bDaE82D46Be8a0F2228ace44786',
         'token_type': 'ERC20'
       }
     }

@@ -18,12 +18,8 @@
 </template>
 
 <script>
-import { provider } from '../../config'
-
-import Eth from 'ethjs'
+/* global web3 */
 import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
-
-const eth = new Eth(new Eth.HttpProvider(provider))
 
 export default {
   name: 'Sidebar',

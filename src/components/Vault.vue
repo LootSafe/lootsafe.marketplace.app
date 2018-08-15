@@ -11,18 +11,16 @@
 </template>
 
 <script>
+/* global web3 */
 import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
 import GetMetamask from '@/components/parts/GetMetamask'
 import Vault from '@/components/parts/Vault'
-import { provider } from '../config'
 
 import Eth from 'ethjs'
 import marketABI from '../../contracts/erc20/build/contracts/Market.json'
-
-const eth = new Eth(new Eth.HttpProvider(provider))
 
 export default {
   name: 'HelloWorld',
@@ -60,7 +58,6 @@ export default {
     },
     createVault: function () {
       const marketAddress = this.market.address
-      const marketplace = marketABI.abi
 
       web3.eth.sendTransaction({
         from: web3.eth.coinbase,
@@ -68,6 +65,7 @@ export default {
         value: 0,
         data: '0x0a'
       }, (err, resp) => {
+        if (err) console.warn('err creating vault', err)
         this.createTx = resp
         this.pollVault()
       })
@@ -92,7 +90,7 @@ export default {
       market: {
         '_id': '5b654c17910a780b70365fd5',
         'name': 'LootSafe',
-        'address': '0x7A5aC300d71fe143b31e8f05D8816155570a7a74',
+        'address': '0x71b9eefa10fb0bdae82d46be8a0f2228ace44786',
         'token_type': 'ERC20'
       }
     }

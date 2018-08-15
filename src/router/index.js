@@ -9,12 +9,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'LootSafe Marketplace',
+      name: 'LootSafe Marketplace - Home',
       component: Home
     },
     {
       path: '/vault',
-      name: 'LootSafe Marketplace',
+      name: 'LootSafe Marketplace - Vault',
       component: Vault
     }
   ]

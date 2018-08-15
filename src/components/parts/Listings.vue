@@ -1,6 +1,7 @@
 <template>
   <div>
     <Search :keyword="keyword"/>
+    <ViewListing v-if="viewListing"></ViewListing>
     <div class="listings_wrapper">
       <table class="listings">
         <thead>
@@ -42,6 +43,7 @@
             <td class="controls">
               <button v-if="$parent.web3status === 'connected' && $parent.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
               <button v-else class="disabled">FULFILL</button>
+              <button class="default" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
               <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
             </td>
@@ -53,8 +55,10 @@
 </template>
 
 <script>
+/* global web3 */
 import Search from '@/components/parts/Search'
 import ethereumAddress from 'ethereum-address'
+import ViewListing from '@/components/parts/ViewListing'
 
 import { apiAddress, provider } from '../../config'
 import blockies from 'ethereum-blockies-png'
@@ -68,14 +72,17 @@ const eth = new ETH(new ETH.HttpProvider(provider))
 export default {
   name: 'Listings',
   components: {
-    Search
+    Search,
+    ViewListing
   },
   data () {
     return {
       loading: true,
       listings: [],
       tokenNames: {},
-      keyword: ''
+      keyword: '',
+      viewListing: false,
+      selectedListing: {}
     }
   },
   created () {
