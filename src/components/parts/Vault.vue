@@ -5,6 +5,7 @@
     <hr>
     <div v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
+      <p>Your Vault address is where you deposit your tokens that you want to trade.</p>
       <input id="vault_address" class="full_input" type="text" :value="$parent.vault"/>
     </div>
     <div v-else>
@@ -14,7 +15,7 @@
     </div>
     <hr>
     <h3 v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">Balances</h3>
-    <table v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" id="balances">
+    <table v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;Vault.vue">
       <thead>
         <th>Name</th>
         <th>Address</th>
@@ -68,7 +69,7 @@ export default {
   },
   data () {
     return {
-      defaultTokens,
+      defaultTokens: defaultTokens.concat(LocalStorage.getItem('customTokens')),
       tokens: {}
     }
   }

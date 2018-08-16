@@ -4,11 +4,11 @@
     <p class="tagline">MARKETPLACE</p>
     <div class="navi navi_one">
       <ul>
-        <li class="active" v-on:click="setActiveLink('/')">
+        <li :class="$parent.$parent.activeLink === '/' ? 'active' : ''" v-on:click="setActiveLink('/')">
           <a href="#">BUY</a>
         </li>
-        <li>
-          <a href="#">SELL</a>
+        <li :class="$parent.$parent.activeLink === '/listing/create' ? 'active' : ''">
+          <a href="#" v-on:click="setActiveLink('/listing/create')">SELL</a>
         </li>
       </ul>
     </div>

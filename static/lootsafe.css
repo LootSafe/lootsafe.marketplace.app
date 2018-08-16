@@ -420,6 +420,14 @@ button.default:hover {
 	background: #7973f9;
 }
 
+button.detail {
+  background: #0984e3;
+}
+
+button.detail:hover {
+  background: #74b9ff;
+}
+
 button.info {
 	background: #2d3436;
 }

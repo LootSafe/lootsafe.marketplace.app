@@ -2,6 +2,7 @@
   <div>
     <Search :keyword="keyword"/>
     <ViewListing v-if="viewListing"></ViewListing>
+    <txDialog v-if="showTxDialog"></txDialog>
     <div class="listings_wrapper">
       <table class="listings">
         <thead>
@@ -26,24 +27,24 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span v-if="tokenNames[listing.asset]">{{ tokenNames[listing.asset] }}</span>
+                <span v-if="tokenNames[listing.asset].name">{{ tokenNames[listing.asset].name }}</span>
                 <span v-else>{{ listing.asset }} <i class="fas fa-spin fa-spinner"></i></span>
               </span>
             </td>
             <td>
               <span class="asset_quantity">
-                {{ listing.amount }}
+                {{ (listing.amount / Math.pow(10, tokenNames[listing.asset].decimals)).toFixed(2) }}
               </span>
             </td>
             <td>
               <span class="asset_cost">
-                <img height="10" src="/static/img/logo_purple.png" /> {{ listing.value }}
+                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2) }}
               </span>
             </td>
             <td class="controls">
               <button v-if="$parent.web3status === 'connected' && $parent.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
               <button v-else class="disabled">FULFILL</button>
-              <button class="default" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
+              <button class="detail" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
               <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
             </td>
@@ -59,6 +60,7 @@
 import Search from '@/components/parts/Search'
 import ethereumAddress from 'ethereum-address'
 import ViewListing from '@/components/parts/ViewListing'
+import txDialog from '@/components/parts/txDialog'
 
 import { apiAddress, provider } from '../../config'
 import blockies from 'ethereum-blockies-png'
@@ -73,11 +75,13 @@ export default {
   name: 'Listings',
   components: {
     Search,
-    ViewListing
+    ViewListing,
+    txDialog
   },
   data () {
     return {
       loading: true,
+      showTxDialog: false,
       listings: [],
       tokenNames: {},
       keyword: '',
@@ -125,14 +129,19 @@ export default {
           return response.json()
         })
         .then((json) => {
-          this.listings = json.data
+          this.listings = json.data.reverse()
 
           this.listings.map(listing => {
             const token = eth.contract(abi).at(listing.asset)
             if (!this.tokenNames[listing.asset]) {
               token.name().then(name => {
-                this.tokenNames = Object.assign({}, this.tokenNames, {
-                  [listing.asset]: name[0]
+                token.decimals().then(decimals => {
+                  this.tokenNames = Object.assign({}, this.tokenNames, {
+                    [listing.asset]: {
+                      name: name[0],
+                      decimals: decimals[0]
+                    }
+                  })
                 })
               })
             }
@@ -144,9 +153,10 @@ export default {
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)
-      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, function (resp) {
+      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, (resp) => {
         // TODO: Listing fulfilled popup
-        console.log(resp)
+        this.showTxDialog = true
+        console.log('resp', resp)
       })
     }
   }

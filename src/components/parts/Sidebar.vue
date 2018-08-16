@@ -4,11 +4,11 @@
       <li v-on:click="setActiveLink('/')">
         <i :class="$parent.$parent.activeLink === '/' ? 'fal fa-home active' : 'fal fa-home'"></i>
       </li>
-      <li v-on:click="setActiveLink('vault')">
-        <i :class="$parent.$parent.activeLink === 'vault' ? 'fal fa-wallet active' : flashVault ? 'fal fa-wallet pulse' : 'fal fa-wallet'"></i>
+      <li v-on:click="setActiveLink('/vault')">
+        <i :class="$parent.$parent.activeLink === '/vault' ? 'fal fa-wallet active' : flashVault ? 'fal fa-wallet pulse' : 'fal fa-wallet'"></i>
       </li>
-      <li>
-        <i class="fal fa-ticket"></i>
+      <li v-on:click="setActiveLink('/listing/create')">
+        <i :class="$parent.$parent.activeLink === '/listing/create' ? 'fal fa-ticket active' : 'fal fa-ticket'"></i>
       </li>
       <li class="soon">
         <i class="fal fa-stopwatch"></i>
