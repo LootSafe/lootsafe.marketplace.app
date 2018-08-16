@@ -1,5 +1,5 @@
 module.exports = {
-  apiAddress: 'http://localhost:8000',
+  apiAddress: 'http://market.lootsafe.io:8000',
   provider: 'https://rinkeby.infura.io',
   defaultTokens: [
     '0xF9c0125560143041981264245624cD9d962003E7',

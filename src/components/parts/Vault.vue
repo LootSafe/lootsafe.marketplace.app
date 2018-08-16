@@ -5,7 +5,8 @@
     <hr>
     <div v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
-      <input id="vault_address" class="full_input" type="text" :value="$parent.vault"/>
+      <input id="vault_address" class="full_input" type="text" :value="$parent.vault" ref="clipboard"/>
+      <button class="default" v-on:click="copyDepositAddr($event)"> {{copyStrText}}</button>
     </div>
     <div v-else>
       <p>You don't have a vault yet!</p>
@@ -61,6 +62,19 @@ export default {
           })
         })
       })
+    },
+    copyDepositAddr (event) {
+      const buttonDefStr = 'Copy Deposit Address'
+      const copiedStr = 'Copied!'
+
+      this.$refs.clipboard.select()
+      document.execCommand('copy')
+
+      this.copyStrText = copiedStr
+
+      setTimeout(function () {
+        this.copyStrText = buttonDefStr
+      }.bind(this), 5000)
     }
   },
   created () {
@@ -69,7 +83,8 @@ export default {
   data () {
     return {
       defaultTokens,
-      tokens: {}
+      tokens: {},
+      copyStrText: 'Copy Deposit Address'
     }
   }
 }
