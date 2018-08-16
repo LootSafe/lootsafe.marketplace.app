@@ -38,7 +38,10 @@ export default {
   methods: {
     checkWeb3: function () {
       // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-      if (typeof web3 !== 'undefined') {
+      console.log(web3.eth.coinbase)
+      console.log(web3)
+      if (typeof web3 !== 'undefined' && web3.eth.coinbase !== null) {
+        console.log('test')
         this.web3status = 'connected'
         this.injectedw3 = new Eth(web3.currentProvider)
       } else {

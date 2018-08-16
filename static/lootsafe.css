@@ -650,3 +650,8 @@ hr {
 #view_listing {
 
 }
+
+
+#vault_address {
+  width: calc(100% - 15rem);
+}

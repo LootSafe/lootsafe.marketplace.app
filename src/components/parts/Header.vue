@@ -3,7 +3,7 @@
     <img src="/static/img/logo.png" class="logo" /><br />
     <p class="tagline">MARKETPLACE</p>
     <div class="navi navi_one">
-      <ul>
+      <ul v-if="$parent.web3status === 'connected'">
         <li :class="$parent.$parent.activeLink === '/' ? 'active' : ''" v-on:click="setActiveLink('/')">
           <a href="#">BUY</a>
         </li>

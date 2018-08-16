@@ -6,7 +6,8 @@
     <div v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
       <p>Your Vault address is where you deposit your tokens that you want to trade.</p>
-      <input id="vault_address" class="full_input" type="text" :value="$parent.vault"/>
+      <input id="vault_address" class="full_input" type="text" :value="$parent.vault" ref="clipboard"/>
+      <button class="default" v-on:click="copyDepositAddr($event)" style="width: 12.5rem;"> {{copyStrText}}</button>
     </div>
     <div v-else>
       <p>You don't have a vault yet!</p>
@@ -62,6 +63,19 @@ export default {
           })
         })
       })
+    },
+    copyDepositAddr (event) {
+      const buttonDefStr = 'Copy Deposit Address'
+      const copiedStr = 'Copied!'
+
+      this.$refs.clipboard.select()
+      document.execCommand('copy')
+
+      this.copyStrText = copiedStr
+
+      setTimeout(function () {
+        this.copyStrText = buttonDefStr
+      }.bind(this), 5000)
     }
   },
   created () {
@@ -69,8 +83,9 @@ export default {
   },
   data () {
     return {
-      defaultTokens: defaultTokens.concat(LocalStorage.getItem('customTokens')),
-      tokens: {}
+      defaultTokens,
+      tokens: {},
+      copyStrText: 'Copy Deposit Address'
     }
   }
 }
