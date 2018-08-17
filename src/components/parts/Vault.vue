@@ -6,7 +6,7 @@
     <div v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
       <p>Your Vault address is where you deposit your tokens that you want to trade.</p>
-      <input id="vault_address" class="full_input" type="text" :value="$parent.vault" ref="clipboard"/>
+      <input id="vault_address" class="full_input" type="text" readonly="true" :value="$parent.vault" ref="clipboard"/>
       <button class="default" v-on:click="copyDepositAddr($event)" style="width: 12.5rem;"> {{copyStrText}}</button>
     </div>
     <div v-else>
