@@ -3,10 +3,10 @@
     <h1><i class="fal fa-wallet"></i> Vault</h1>
     <p>Your vault holds everything you want to trade in the marketplace, to start trading create a vault and deposit assets you wish to trade.</p>
     <hr>
-    <div v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">
+    <div v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
       <p>Your Vault address is where you deposit your tokens that you want to trade.</p>
-      <input id="vault_address" class="full_input" type="text" readonly="true" :value="$parent.vault" ref="clipboard"/>
+      <input id="vault_address" class="full_input" type="text" readonly="true" :value="$root.$data.vault" ref="clipboard"/>
       <button class="default" v-on:click="copyDepositAddr($event)" style="width: 12.5rem;"> {{copyStrText}}</button>
     </div>
     <div v-else>
@@ -15,8 +15,8 @@
       <p v-if="$parent.createTx"><i class="fa fa-spin fa-spinner"></i> Your transaction has been created {{ $parent.createTx }}, please wait for it to be mined...</p>
     </div>
     <hr>
-    <h3 v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">Balances</h3>
-    <table v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;">
+    <h3 v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">Balances <button v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" class="default small" v-on:click="openPopup($event)"> <i class="far fa-plus"></i> Track New Token</button></h3>
+    <table v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;">
       <thead>
         <th>Name</th>
         <th>Address</th>
@@ -28,20 +28,18 @@
           <td>{{ token }}</td>
           <td>{{ (tokens[token].balance / Math.pow(10, tokens[token].decimals)).toFixed(2) }}</td>
         </tr>
-        <tr>
-          <td>
-            <button v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" class="default" v-on:click="openPopup($event)"> Add Token</button>
-          </td>
-        </tr>
       </tbody>
     </table>
     <div v-if="showAddToken !== false">
       <div class="popupmask"></div>
       <div id="get_metamask">
-        <h1>Add Token & Validate</h1>
+        <h2>Track New Token</h2>
+        <br />
         <input id="validate_address" class="full_input" type="text" placeholder="0x0000000000000000000000000000000000000000" ref="checkme"/>
-        <button class="default" v-on:click="addValToken($event)"> Validate Address</button>
-        <button class="default" v-on:click="closePopup($event)"> Close</button>
+        <br />
+        <br>
+        <button class="half" v-on:click="addValToken($event)"> Add</button>
+        <button class="info half" v-on:click="closePopup($event)"> Cancel</button>
         <p v-if="invalidAddress !== false" style="color:red"> Invalid Address</p>
       </div>
     </div>
@@ -93,21 +91,21 @@ export default {
         this.copyStrText = buttonDefStr
       }.bind(this), 5000)
     },
-    addValToken (event) {
-      var addAlreadyExists = false
+    addValToken () {
+      let addAlreadyExists = false
 
       if (this.$refs.checkme.value in this.tokens) {
         addAlreadyExists = true
       }
 
-      if (this.$refs.checkme.value in JSON.parse(localStorage.getItem('custom_tokens'))) {
+      if (localStorage.getItem('custom_tokens') && this.$refs.checkme.value in JSON.parse(localStorage.getItem('custom_tokens'))) {
         addAlreadyExists = true
       }
 
       if (ethereumAddress.isAddress(this.$refs.checkme.value) && !addAlreadyExists) {
         this.closePopup()
 
-        var toke
+        let toke
 
         if (localStorage.getItem('custom_tokens') == null) {
           toke = [this.$refs.checkme.value]
@@ -128,25 +126,19 @@ export default {
         }.bind(this), 3500)
       }
     },
-    openPopup (event) {
+    openPopup () {
       this.showAddToken = true
     },
-    closePopup (event) {
+    closePopup () {
       this.showAddToken = false
     }
   },
   created () {
-    if (localStorage.getItem('custom_tokens') != null) {
-      var lockens = JSON.parse(localStorage.getItem('custom_tokens'))
-      for (var i = 0; i < lockens.length; i++) {
-        defaultTokens.push(lockens[i])
-      }
-    }
     this.getTokenBalances()
   },
   data () {
     return {
-      defaultTokens,
+      defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens,
       tokens: {},
       copyStrText: 'Copy Deposit Address',
       showAddToken: false,

@@ -27,12 +27,12 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span v-if="tokenNames[listing.asset].name">{{ tokenNames[listing.asset].name }}</span>
+                <span v-if="tokenNames[listing.asset] && tokenNames[listing.asset].name">{{ tokenNames[listing.asset].name }}</span>
                 <span v-else>{{ listing.asset }} <i class="fas fa-spin fa-spinner"></i></span>
               </span>
             </td>
             <td>
-              <span class="asset_quantity">
+              <span class="asset_quantity" v-if="tokenNames[listing.asset]">
                 {{ (listing.amount / Math.pow(10, tokenNames[listing.asset].decimals)).toFixed(2) }}
               </span>
             </td>
@@ -42,7 +42,7 @@
               </span>
             </td>
             <td class="controls">
-              <button v-if="$parent.web3status === 'connected' && $parent.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
+              <button v-if="$root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
               <button v-else class="disabled">FULFILL</button>
               <button class="detail" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
@@ -103,7 +103,7 @@ export default {
     },
     getListings: function (keywords) {
       let payload = {
-        market_address: this.$parent.market.address,
+        market_address: this.$root.$data.market.address,
         status: 0
       }
 
@@ -149,7 +149,7 @@ export default {
         })
     },
     fulfill: function (listing) {
-      const marketAddress = this.$parent.market.address
+      const marketAddress = this.$root.$data.market.address
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)

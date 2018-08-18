@@ -634,9 +634,17 @@ hr {
 }
 
 #view_listing button {
-  width: calc(50% - 1rem);
+  width: calc(50% - 0.5rem);
 }
 
+#view_listing {
+  margin-left: 0;
+}
+
+.half {
+  width: calc(50% - 0.2rem);
+  margin: 0;
+}
 .asset_circle_small {
   width: 10px;
   border-radius: 50%;
@@ -645,10 +653,12 @@ hr {
 #view_listing h1,h2,h3,h4,h5 {
   font-weight: 100;
   margin: 0;
+  text-align: left;
 }
 
-#view_listing {
-
+.small {
+  font-size: 8pt;
+  padding: 0.3rem;
 }
 
 

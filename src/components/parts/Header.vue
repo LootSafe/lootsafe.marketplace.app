@@ -3,7 +3,7 @@
     <img src="/static/img/logo.png" class="logo" /><br />
     <p class="tagline">MARKETPLACE</p>
     <div class="navi navi_one">
-      <ul v-if="$parent.web3status === 'connected'">
+      <ul v-if="$root.$data.web3status === 'connected'">
         <li :class="$parent.$parent.activeLink === '/' ? 'active' : ''" v-on:click="setActiveLink('/')">
           <a href="#">BUY</a>
         </li>
@@ -17,7 +17,7 @@
         <li>
           <span class="market_select">MARKET</span>
           <a href="#" v-on:click="toggleMarketSelectDropdown(); showAccount = false">
-            {{ $parent.market.name.toUpperCase() }}
+            {{ $root.$data.market.name.toUpperCase() }}
             <i class="fa fa-sort-down"></i>
           </a>
           <div v-if="showMarketSelect" class="market-dropdown">
@@ -33,7 +33,7 @@
           </a>
           <div v-if="showAccount" class="account-dropdown">
             <ul>
-              <li>{{ coinbase }}</li>
+              <li>{{ $root.$data.account }}</li>
             </ul>
           </div>
         </li>
@@ -51,7 +51,6 @@
 </template>
 
 <script>
-/* global web3 */
 import { apiAddress } from '../../config'
 import blockies from 'ethereum-blockies-png'
 
@@ -62,8 +61,8 @@ export default {
     this.getDailyVolume()
   },
   methods: {
-    getProfileIcon: () => {
-      return blockies.createDataURL({ seed: web3.eth.coinbase })
+    getProfileIcon: function () {
+      return blockies.createDataURL({ seed: this.$root.$data.account })
     },
     setActiveLink: function (route) {
       this.$parent.$parent.activeLink = route
@@ -76,7 +75,7 @@ export default {
       this.showAccount = !this.showAccount
     },
     setMarket: function (market) {
-      this.$parent.market = market
+      this.$root.$data.market = market
       this.showMarketSelect = false
     },
     getDailyVolume: function () {
@@ -100,7 +99,6 @@ export default {
   },
   data () {
     return {
-      coinbase: typeof web3 !== 'undefined' ? web3.eth.coinbase : '0x0000000000000000000000000000000000000000',
       showAccount: false,
       activeLink: '/',
       dailyVolume: 0,

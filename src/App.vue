@@ -2,7 +2,7 @@
   <div id="app">
     <link rel="stylesheet" href="/static/lootsafe.css">
     <link rel="stylesheet" href="/static/fontawesome/css/all.css">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
