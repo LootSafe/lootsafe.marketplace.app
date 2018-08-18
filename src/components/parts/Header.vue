@@ -45,7 +45,7 @@
       </ul>
     </div>
     <div class="navi_center">
-      <span class="volume"><img src="/static/img/logo_purple.png" /> {{ dailyVolume }}</span>
+      <span class="volume"><img src="/static/img/logo_purple.png" /> {{ (dailyVolume / Math.pow(10, 18)).toFixed(2) }}</span>
     </div>
   </header>
 </template>

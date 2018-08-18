@@ -16,7 +16,7 @@
     </div>
     <hr>
     <h3 v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'">Balances</h3>
-    <table v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;Vault.vue">
+    <table v-if="$parent.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;">
       <thead>
         <th>Name</th>
         <th>Address</th>
