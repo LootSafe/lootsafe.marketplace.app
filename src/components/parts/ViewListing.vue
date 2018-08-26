@@ -3,10 +3,18 @@
     <div class="popupmask"></div>
     <div id="view_listing">
       <h2>View Listing</h2>
-      <p><strong>Asset: </strong> <img :src="generateBlockies($parent.selectedListing.asset)" alt="Asset Icon" class="asset_circle_small"> {{ $parent.selectedListing.asset }}</p>
+      <p>
+        <strong>Asset: </strong>
+        <img :src="generateBlockies($parent.selectedListing.asset)" alt="Asset Icon" class="asset_circle_small">
+        <a :href="etherscan + 'token/' + $parent.selectedListing.asset" target="_blank">{{ $parent.selectedListing.asset }}</a>
+      </p>
       <p><strong>Cost: </strong> {{ ($parent.selectedListing.value / Math.pow(10, 18)).toFixed(2) }} <img height="10" src="/static/img/logo_purple.png" /></p>
-      <p><strong>Amount: </strong> {{ ($parent.selectedListing.amount / Math.pow(10, $parent.tokenNames[$parent.selectedListing.asset].decimals)).toFixed(2) }} {{ $parent.tokenNames[$parent.selectedListing.asset].name }}(s)</p>
-      <p><strong>Merchant: </strong> <img :src="generateBlockies($parent.selectedListing.merchant)" alt="Asset Icon" class="asset_circle_small"> {{ $parent.selectedListing.merchant }}</p>
+      <p><strong>Amount: </strong> {{ ($parent.selectedListing.amount / Math.pow(10, $root.$data.tokens[$parent.selectedListing.asset].decimals)).toFixed(2) }} {{ $root.$data.tokens[$parent.selectedListing.asset].name }}(s)</p>
+      <p>
+        <strong>Merchant: </strong>
+        <img :src="generateBlockies($parent.selectedListing.merchant)" alt="Asset Icon" class="asset_circle_small">
+        <a :href="etherscan + 'address/' + $parent.selectedListing.merchant" target="_blank">{{ $parent.selectedListing.merchant }}</a>
+      </p>
       <p><strong>Status: </strong> {{ $parent.selectedListing.status }} ({{ translateStatus($parent.selectedListing.status) }})</p>
       <p><strong>ID: </strong> {{ $parent.selectedListing.id }}</p>
       <p><strong>Created: </strong> {{ getTime($parent.selectedListing.date) }}</p>
@@ -18,6 +26,7 @@
 
 <script>
 import blockies from 'ethereum-blockies-png'
+import { etherscan } from '../../config'
 
 export default {
   name: 'ViewListing',
@@ -36,7 +45,9 @@ export default {
     }
   },
   data () {
-    return {}
+    return {
+      etherscan
+    }
   }
 }
 </script>

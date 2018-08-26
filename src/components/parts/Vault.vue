@@ -15,7 +15,14 @@
       <p v-if="$parent.createTx"><i class="fa fa-spin fa-spinner"></i> Your transaction has been created {{ $parent.createTx }}, please wait for it to be mined...</p>
     </div>
     <hr>
-    <h3 v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">Balances <button v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" class="default small" v-on:click="openPopup($event)"> <i class="far fa-plus"></i> Track New Token</button></h3>
+    <h3 v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">Balances
+      <button v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" class="default small" v-on:click="openPopup($event)">
+        <i class="far fa-plus"></i> Track New Token
+      </button>
+      <button class="default small" v-on:click="$root.getTokens()">
+        <i :class="$root.$data.syncing ? 'fal fa-spin fa-sync' : 'fal fa-sync'"></i>
+      </button>
+    </h3>
     <table v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;">
       <thead>
         <th>Name</th>
@@ -23,10 +30,10 @@
         <th>Balance</th>
       </thead>
       <tbody>
-        <tr v-for="token in Object.keys(tokens)" v-bind:key="token">
-          <td>{{ tokens[token].name }}</td>
-          <td>{{ token }}</td>
-          <td>{{ (tokens[token].balance / Math.pow(10, tokens[token].decimals)).toFixed(2) }}</td>
+        <tr v-for="token in Object.keys($root.$data.tokens)" v-bind:key="token">
+          <td>{{ $root.$data.tokens[token].name }}</td>
+          <td><a :href="etherscan + 'token/' + token" target="_blank">{{ token }}</a></td>
+          <td>{{ ($root.$data.tokens[token].balance / Math.pow(10, $root.$data.tokens[token].decimals)).toFixed(2) }}</td>
         </tr>
       </tbody>
     </table>
@@ -48,7 +55,7 @@
 
 <script>
 import ERC20ABI from '../../../contracts/erc20/build/contracts/EIP20.json'
-import { provider, defaultTokens } from '../../config'
+import { provider, defaultTokens, etherscan } from '../../config'
 import ethereumAddress from 'ethereum-address'
 
 import Eth from 'ethjs'
@@ -58,26 +65,6 @@ const eth = new Eth(new Eth.HttpProvider(provider)) // eslint-disable-line no-un
 export default {
   name: 'Vault',
   methods: {
-    getTokenBalances: function () {
-      this.defaultTokens.map(token => {
-        const tokenContract = eth.contract(ERC20ABI.abi).at(token)
-
-        tokenContract.name().then(name => {
-          tokenContract.decimals().then(decimals => {
-            const owner = this.$parent.vault
-            tokenContract.balances(owner).then(balance => {
-              this.tokens = Object.assign({}, this.tokens, {
-                [token]: {
-                  name: name[0],
-                  balance: balance[0].toString(),
-                  decimals: decimals[0]
-                }
-              })
-            })
-          })
-        })
-      })
-    },
     copyDepositAddr (event) {
       const buttonDefStr = 'Copy Deposit Address'
       const copiedStr = 'Copied!'
@@ -94,7 +81,7 @@ export default {
     addValToken () {
       let addAlreadyExists = false
 
-      if (this.$refs.checkme.value in this.tokens) {
+      if (this.$refs.checkme.value in this.$root.$data.tokens) {
         addAlreadyExists = true
       }
 
@@ -117,7 +104,6 @@ export default {
         }
 
         defaultTokens.push(this.$refs.checkme.value)
-        this.getTokenBalances()
       } else {
         this.invalidAddress = true
 
@@ -133,13 +119,11 @@ export default {
       this.showAddToken = false
     }
   },
-  created () {
-    this.getTokenBalances()
-  },
   data () {
     return {
       defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens,
       tokens: {},
+      etherscan,
       copyStrText: 'Copy Deposit Address',
       showAddToken: false,
       showValidationStatus: false,

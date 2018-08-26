@@ -1,13 +1,53 @@
 <template>
   <div>
-    <GetMetamask v-if="web3status === 'missing'" />
+    <GetMetamask v-if="$root.$data.web3status === 'missing'" />
     <Header />
     <Sidebar />
     <Chat />
     <div id="main_content">
+      <ViewListing v-if="viewListing"></ViewListing>
+      <txDialog v-if="showTxDialog"></txDialog>
+      <txCancelledDialog v-if="showTxCancelledDialog"></txCancelledDialog>
       <div id="vault">
-        <h1><i class="fal fa-plus"></i> Create Listing</h1>
-        <p>Here you can create a listing to sell items in your vault.</p>
+        <h1><i class="fal fa-ticket"></i> Listing Managment</h1>
+        <p>Here you can create and view listings. To create a listing insure you've deposited the item into your vault prior to attempting to sell.</p>
+        <hr>
+        <div class="lightBG">
+          <!-- TODO: Add drop-down to select asset from list of assets in vault -->
+          <label for="asset">Asset for Sale</label><br /><br />
+          <select name="asset" id="asset" class="full_input select" style="width: calc(100% - 0.5rem);" v-model="selectedAsset">
+            <option value="" selected disabled hidden>Choose a token...</option>
+            <option v-for="token in defaultTokens" :value="token" v-bind:key="token" v-if="$root.$data.tokens[token] && $root.$data.tokens[token].balance > 0">
+              {{ $root.$data.tokens[token].name }}
+              ({{ ($root.$data.tokens[token].balance / Math.pow(10, $root.$data.tokens[token].decimals)).toFixed(2) }})
+              - {{ token }}
+            </option>
+          </select>
+          <br>
+          <br />
+          <div class="half">
+            <!-- TODO: Add logic to automatically add decimals to number -->
+            <label for="amount">Amount for Sale</label><br /><br />
+            <input id="amount" class="full_input" style="width: calc(100% - 2rem);" type="number" placeholder="1" v-model="assetAmount"/>
+          </div>
+          <div class="half">
+            <!-- TODO: Add logic to automatically add decimals to number -->
+            <label for="cost">Cost for Item</label><br /><br />
+            <input id="cost" class="full_input" type="number" placeholder="100" v-model="assetCost" />
+          </div>
+          <p v-if="error" class="error">{{ error }}</p>
+          <div class="half">&nbsp;</div>
+          <div class="half">
+            <div class="half">&nbsp;</div>
+            <div class="half">
+              <button class="full" v-on:click="createListing()">Create</button>
+            </div>
+          </div>
+          <hr>
+          <h2>Your Listings</h2>
+          <hr>
+          <MyListings v-if="$root.$data.web3status === 'connected'" />
+        </div>
       </div>
     </div>
   </div>
@@ -15,81 +55,77 @@
 
 <script>
 /* global web3 */
+
+import { BigNumber } from 'bignumber.js'
+
 import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
-import Listings from '@/components/parts/Listings'
+import MyListings from '@/components/parts/MyListings'
+import ViewListing from '@/components/parts/ViewListing'
 import GetMetamask from '@/components/parts/GetMetamask'
-import Vault from '@/components/parts/Vault'
+import { provider, defaultTokens } from '../config'
+
+import txDialog from '@/components/parts/txDialog'
+import txCancelledDialog from '@/components/parts/txCancelledDialog'
 
 import Eth from 'ethjs'
+
 import marketABI from '../../contracts/erc20/build/contracts/Market.json'
+
+const eth = new Eth(new Eth.HttpProvider(provider)) // eslint-disable-line no-unused-vars
 
 export default {
   name: 'CreateListing',
   components: {
     Header,
     Sidebar,
+    ViewListing,
     Chat,
-    Listings,
     GetMetamask,
-    Vault
-  },
-  created () {
-    this.checkWeb3()
-    this.getVault()
+    txDialog,
+    MyListings,
+    txCancelledDialog
   },
   methods: {
-    checkWeb3: function () {
-      // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-      if (typeof web3 !== 'undefined') {
-        this.web3status = 'connected'
-        this.injectedw3 = new Eth(web3.currentProvider)
+    createListing: function () {
+      if (this.selectedAsset && this.assetCost > 0 && this.assetAmount > 0) {
+        const assetCost = new BigNumber(this.assetCost).multipliedBy(new BigNumber(10).pow(18))
+        const assetAmount = new BigNumber(this.assetAmount).multipliedBy(new BigNumber(10).pow(this.$root.$data.tokens[this.selectedAsset].decimals))
+
+        const marketAddress = this.$root.$data.market.address
+        const marketplace = marketABI.abi
+        const contract = web3.eth.contract(marketplace).at(marketAddress)
+        contract.create_listing(this.selectedAsset, assetAmount.toString(), assetCost.toString(), { from: web3.eth.coinbase }, (err, tx) => {
+          if (err) {
+            this.showTxCancelledDialog = true
+          } else {
+            this.selectedAsset = ''
+            this.assetCost = null
+            this.assetAmount = null
+            this.showTxDialog = tx
+          }
+        })
       } else {
-        this.web3status = 'missing'
+        this.error = 'Missing required information to create listing!'
       }
     }
   },
-  getVault: function () {
-    const marketAddress = this.market.address
-    const marketplace = marketABI.abi
-    const contract = web3.eth.contract(marketplace).at(marketAddress)
-
-    contract.vaults.call(web3.eth.coinbase, (err, resp) => {
-      if (err) console.warn('Error getting vault address', err)
-      this.vault = resp
-    })
-  },
   data () {
     return {
-      createTx: false,
-      web3status: 'pending',
-      injectedw3: null,
-      market: {
-        '_id': '5b654c17910a780b70365fd5',
-        'name': 'LootSafe',
-        'address': '0x71b9eefa10fb0bdae82d46be8a0f2228ace44786',
-        'token_type': 'ERC20'
-      }
+      error: false,
+      getTokensInterval: null,
+      syncing: false,
+      showTxDialog: false,
+      showTxCancelledDialog: false,
+      selectedAsset: '',
+      viewListing: false,
+      selectedListing: {},
+      assetCost: null,
+      assetAmount: null,
+      tokens: false,
+      defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens
     }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>

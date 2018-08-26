@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SearchHelp v-if="searchTips"></SearchHelp>
     <GetMetamask v-if="$root.$data.web3status === 'missing'" />
     <Header />
     <Sidebar />
@@ -16,6 +17,7 @@ import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
+import SearchHelp from '@/components/parts/SearchHelp'
 import GetMetamask from '@/components/parts/GetMetamask'
 
 import { defaultMarket } from '../config'
@@ -27,6 +29,7 @@ import Eth from 'ethjs'
 export default {
   name: 'HelloWorld',
   components: {
+    SearchHelp,
     Header,
     Sidebar,
     Chat,
@@ -38,6 +41,7 @@ export default {
       vault: '0x0000000000000000000000000000000000000000',
       account: '0x0000000000000000000000000000000000000000',
       web3poll: null,
+      searchTips: false,
       pollInterval: 10,
       web3status: 'pending',
       msg: 'Welcome to Your Vue.js App',
@@ -47,20 +51,3 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>

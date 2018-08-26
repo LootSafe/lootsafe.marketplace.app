@@ -1,10 +1,6 @@
 <template>
   <div>
-    <Search :keyword="keyword"/>
-    <ViewListing v-if="viewListing"></ViewListing>
-    <txDialog v-if="showTxDialog"></txDialog>
-    <txCancelledDialog v-if="showTxCancelledDialog"></txCancelledDialog>
-    <div class="listings_wrapper">
+    <div class="listings_wrapper my_listings">
       <table class="listings">
         <thead>
         <th>SELLER</th>
@@ -43,12 +39,9 @@
               </span>
             </td>
             <td class="controls">
-              <button v-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase() && $root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
-              <button v-else-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase()" class="disabled">FULFILL</button>
-              <button class="danger" v-else v-on:click="cancelListing(listing)">CANCEL</button>
-              <button class="detail" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
-              <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
-              <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
+              <button class="danger" v-if="$root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000' && listing.status === 0" v-on:click="cancelListing(listing)">CANCEL</button>
+              <button v-else class="disabled">CANCEL</button>
+              <button class="detail" v-on:click="$parent.selectedListing = listing; $parent.viewListing = true"><i class="far fa-eye"></i></button>
             </td>
           </tr>
         </tbody>
@@ -59,12 +52,6 @@
 
 <script>
 /* global web3 */
-import Search from '@/components/parts/Search'
-import ethereumAddress from 'ethereum-address'
-import ViewListing from '@/components/parts/ViewListing'
-import txDialog from '@/components/parts/txDialog'
-import txCancelledDialog from '@/components/parts/txCancelledDialog'
-
 import { apiAddress, provider } from '../../config'
 import blockies from 'ethereum-blockies-png'
 
@@ -77,10 +64,6 @@ const eth = new ETH(new ETH.HttpProvider(provider))
 export default {
   name: 'Listings',
   components: {
-    Search,
-    ViewListing,
-    txDialog,
-    txCancelledDialog
   },
   data () {
     return {
@@ -89,9 +72,7 @@ export default {
       showTxCancelledDialog: false,
       listings: [],
       tokenNames: {},
-      keyword: '',
-      viewListing: false,
-      selectedListing: {}
+      keyword: ''
     }
   },
   created () {
@@ -109,20 +90,11 @@ export default {
     getListings: function (keywords) {
       let payload = {
         market_address: this.$root.$data.market.address,
-        status: 0
+        merchant: web3.toChecksumAddress(web3.eth.coinbase)
       }
 
-      let parts = keywords.split(',')
+      console.log('payload', payload)
 
-      parts.map(part => {
-        const trimmed = part.trim()
-        if (trimmed.includes('asset:') && trimmed.split(':')[0] === 'asset' && ethereumAddress.isAddress(trimmed.split(':')[1])) {
-          payload.asset = trimmed.split(':')[1]
-        }
-        if (trimmed.includes('merchant:') && trimmed.split(':')[0] === 'merchant' && ethereumAddress.isAddress(trimmed.split(':')[1])) {
-          payload.merchant = trimmed.split(':')[1]
-        }
-      })
       // TODO: Make market address correlate to market dropdown
       fetch(`${apiAddress}/market/listings/filtered`,
         {
@@ -134,6 +106,7 @@ export default {
           return response.json()
         })
         .then((json) => {
+          console.log('json', json)
           this.listings = json.data.reverse()
 
           this.listings.map(listing => {
@@ -153,20 +126,6 @@ export default {
           })
         })
     },
-    fulfill: function (listing) {
-      const marketAddress = this.$root.$data.market.address
-      const listingId = listing.id
-      const marketplace = marketABI.abi
-      const contract = web3.eth.contract(marketplace).at(marketAddress)
-      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
-        // TODO: Listing fulfilled popup
-        if (err) {
-          this.showTxCancelledDialog = true
-        } else {
-          this.showTxDialog = tx
-        }
-      })
-    },
     cancelListing: function (listing) {
       const marketAddress = this.$root.$data.market.address
       const listingId = listing.id
@@ -175,9 +134,9 @@ export default {
       contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
         // TODO: Listing fulfilled popup
         if (err) {
-          this.showTxCancelledDialog = true
+          this.$parent.showTxCancelledDialog = true
         } else {
-          this.showTxDialog = tx
+          this.$parent.showTxDialog = tx
         }
       })
     }

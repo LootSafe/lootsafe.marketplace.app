@@ -6,6 +6,17 @@ body, html {
 
 }
 
+a {
+  color: #a1a2cd;
+  font-size: 9pt;
+	font-family: 'Open Sans', monospace;
+}
+
+.smallLink {
+  color: #eee;
+  font-size: 7pt;
+}
+
 header {
 	background: #2f2e4b;
 	width: 100%;
@@ -31,6 +42,36 @@ header .navi {
 	height: 5.5rem;
 	background: #232538;
 	padding: 1rem 0.5rem 0 0.5rem;
+}
+
+.lightBG {
+  background: #1e2031;
+  position: absolute;
+  top: 9rem;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  padding: 2rem;
+  padding-top: 0;
+}
+
+.lightBG input {
+  background: #151723;
+  margin-left: 0rem;
+  margin-bottom: 2rem;
+}
+
+.full {
+  width: 100%;
+}
+
+.select {
+  border: none;
+  color: #eee;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 0.5rem;
 }
 
 .main-search {
@@ -90,7 +131,6 @@ header .navi ul li a:hover {
 	width: calc(100% - 1rem);
   background: #151723;
   margin: 0;
-
 }
 
 .pulse {
@@ -385,13 +425,14 @@ textarea, select, input, button { outline: none; }
 }
 
 .listings_wrapper {
-	width: 100%;
+	width: calc(100% - 1.5rem);
 	position: absolute;
 	right: 0;
 	left: 0;
 	bottom: 0;
 	top: 7rem;
 	overflow-y: scroll;
+  padding: 0 1rem;
 }
 .listings {
 	width: 100%
@@ -418,6 +459,14 @@ button.default {
 
 button.default:hover {
 	background: #7973f9;
+}
+
+button.danger {
+  background: #d63031;
+}
+
+button.danger:hover {
+  background: #ff7675;
 }
 
 button.detail {
@@ -461,6 +510,7 @@ button.info:hover {
 	height: 3rem;
 	background: #212235;
 }
+
 
 table {
 	border-collapse: collapse;
@@ -596,6 +646,10 @@ hr {
   padding: 0;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 .account-dropdown ul li {
   margin: 0;
   padding: 0.5rem 1rem;
@@ -644,7 +698,10 @@ hr {
 .half {
   width: calc(50% - 0.2rem);
   margin: 0;
+  float: left;
 }
+
+
 .asset_circle_small {
   width: 10px;
   border-radius: 50%;
@@ -664,4 +721,18 @@ hr {
 
 #vault_address {
   width: calc(100% - 15rem);
+}
+
+.error {
+  color: #ff253a;
+}
+
+.my_listings {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0;
+  top: 20rem;
+  padding: 0 !important;
+  width: calc(100% - 2rem) !important;
 }
