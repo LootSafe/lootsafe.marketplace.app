@@ -2,7 +2,6 @@
   <div id="vault">
     <h1><i class="fal fa-piggy-bank"></i> Vault</h1>
     <p>Your vault holds everything you want to trade in the marketplace, to start trading create a vault and deposit assets you wish to trade.</p>
-    <p style="color: #ffeaa7">NOTICE: When you purchase items, or sell items, token are sent straight to your wallet to save you fees.</p>
     <hr>
     <div v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">
       <h3>Your Vault</h3>
@@ -25,19 +24,21 @@
       </button>
     </h3>
     <div class="token-balances">
-      <table v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'" id="balances" style="margin-top: 1rem;">
+      <table class="listings" v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'"  style="margin-top: 1rem;">
         <thead>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Balance</th>
-          <th>Withdraw</th>
+          <th align="left">Icon</th>
+          <th align="left">Name</th>
+          <th align="left">Address</th>
+          <th align="right">Balance</th>
+          <th align="center"></th>
         </thead>
         <tbody>
-          <tr v-for="token in Object.values($root.$data.tokens).sort((a, b) => b.balance - a.balance)" v-bind:key="token">
-            <td>{{ token.name }}</td>
+          <tr v-for="token in Object.values($root.$data.tokens).sort((a, b) => b.balance - a.balance)" v-bind:key="token" v-if="$root.$data.defaultTokens.indexOf(token.address) > -1">
+            <td><div v-html="getJazzicon(token.address, 30).outerHTML"></div></td>
+            <td><strong>{{ token.name }}</strong></td>
             <td><a :href="etherscan + 'token/' + token.address" target="_blank">{{ token.address }}</a></td>
-            <td style="text-align: right;">{{ (token.balance / Math.pow(10, token.decimals)).toFixed(2) }}</td>
-            <td>
+            <td class="rightAlign">{{ (token.balance / Math.pow(10, token.decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
+            <td class="rightAlign">
               <button class="default small" v-on:click="withdrawDialog = token">
                 <i class="far fa-angle-double-right"></i> Withdraw
               </button>
@@ -65,10 +66,15 @@
 <script>
 import { defaultTokens, etherscan } from '../../config'
 import ethereumAddress from 'ethereum-address'
+import jazzicon from 'jazzicon'
 
 export default {
   name: 'Vault',
   methods: {
+    getJazzicon: (seed, size = 35) => {
+      const addr = seed.slice(2, 10)
+      return jazzicon(size, parseInt(addr, 16))
+    },
     copyDepositAddr (event) {
       const buttonDefStr = 'Copy Deposit Address'
       const copiedStr = 'Copied!'

@@ -28,7 +28,7 @@
         </li>
         <li style="margin-right: 0;">
           <a href="#" v-on:click="toggleAccountDropdown(); showMarketSelect = false" >
-            <img class="profile_icon" :src="getProfileIcon()" alt="" />
+            <div class="profile_icon" v-html="getProfileIcon().outerHTML"></div>
             ACCOUNT <i class="fa fa-sort-down"></i>
           </a>
           <div v-if="showAccount" class="account-dropdown">
@@ -47,14 +47,14 @@
       </ul>
     </div>
     <div class="navi_center">
-      <span class="volume"><img src="/static/img/logo_purple.png" /> VOLUME: {{ (dailyVolume / Math.pow(10, 18)).toFixed(2) }}</span>
+      <span class="volume"><img src="/static/img/logo_purple.png" /> VOLUME: {{ (dailyVolume / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
     </div>
   </header>
 </template>
 
 <script>
 import { apiAddress, etherscan } from '../../config'
-import blockies from 'ethereum-blockies-png'
+import jazzicon from 'jazzicon'
 
 export default {
   name: 'Header',
@@ -69,7 +69,9 @@ export default {
       this.$parent.restartTour()
     },
     getProfileIcon: function () {
-      return blockies.createDataURL({ seed: this.$root.$data.account })
+      const addr = this.$root.$data.account.slice(2, 10)
+      const seed = parseInt(addr, 16)
+      return jazzicon(25, seed)
     },
     setActiveLink: function (route) {
       this.$parent.$parent.activeLink = route

@@ -767,16 +767,28 @@ hr {
   width: calc(100% - 2rem) !important;
 }
 
+.rightAlign {
+  text-align: right;
+}
+
+.asset_name {
+  font-weight: bold;
+}
+
 .token-balances {
   position: absolute;
   left: 0rem;
   right: 0rem;
   bottom: 0;
-  top: 24rem;
-  padding: 0 2rem !important;
+  top: 21rem;
+  padding: 0 1rem;
   width: calc(100% - 2rem) !important;
   overflow-y: scroll;
 }
+.token-balances table {
+  width: 100%;
+}
+
 
 
 .account {

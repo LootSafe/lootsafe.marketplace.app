@@ -16,13 +16,13 @@
         <tbody>
           <tr v-for="listing in listings" v-bind:key="listing.id" v-if="$root.$data.tokens[listing.asset]">
             <td class="small_td">
-              <img :src="generateBlockies(listing.merchant)" alt="Merchant Icon" :title="listing.merchant" class="asset_circle">
+              <div class="asset_circle" v-html="getJazzicon(listing.merchant).outerHTML"></div>
             </td>
             <td class="small_td center">
               <i class="fa fa-exchange"></i>
             </td>
             <td class="small_td">
-              <img :src="generateBlockies(listing.asset)" alt="Asset Icon" :title="listing.asset" class="asset_circle">
+              <div class="asset_circle" v-html="getJazzicon(listing.asset).outerHTML"></div>
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
@@ -59,7 +59,7 @@
 /* global web3 */
 import Loader from '@/components/parts/Loader'
 import { apiAddress } from '../../config'
-import blockies from 'ethereum-blockies-png'
+import jazzicon from 'jazzicon'
 
 import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
 
@@ -84,8 +84,9 @@ export default {
     // TODO: poll listings
   },
   methods: {
-    generateBlockies: seed => {
-      return blockies.createDataURL({ seed })
+    getJazzicon: (seed, size = 35) => {
+      const addr = seed.slice(2, 10)
+      return jazzicon(size, parseInt(addr, 16))
     },
     setSearchString: function (type, str) {
       this.keyword = type === 'raw' ? str : type + ':' + str
