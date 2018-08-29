@@ -1,3 +1,17 @@
+.v-step {
+  z-index: 10000;
+  max-width: 520px !important;
+  background: #363959 !important;
+}
+
+.tour-disable {
+  pointer-events: none;
+}
+
+.v-step .v-step__arrow[data-v-570be51d] {
+  border-color: #363959;
+}
+
 body, html {
 	background: #1e2031;
 	margin: 0;
@@ -38,11 +52,16 @@ header .navi {
 }
 
 #search {
-	width: calc(100% - 1rem);
+	width: calc(100% - 2rem);
 	height: 5.5rem;
 	background: #232538;
-	padding: 1rem 0.5rem 0 0.5rem;
+  background-image: url('/static/img/search.png');
+  background-size: auto;
+  background-repeat: no-repeat;
+  background-position-x: right;
+	padding: 2rem 1rem;
 }
+
 
 .lightBG {
   background: #1e2031;
@@ -430,7 +449,7 @@ textarea, select, input, button { outline: none; }
 	right: 0;
 	left: 0;
 	bottom: 0;
-	top: 7rem;
+	top: 10rem;
 	overflow-y: scroll;
   padding: 0 1rem;
 }
@@ -545,7 +564,6 @@ td {
 	text-align: center;
 }
 
-
 .market-dropdown {
   position: absolute;
   top: 3rem;
@@ -601,7 +619,7 @@ td {
 
 #get_metamask {
   position: absolute;
-  z-index: 4;
+  z-index: 4000000;
   width: 25rem;
   heigth: 25rem;
   left: calc(50% - 13.5rem);
@@ -610,10 +628,18 @@ td {
   color: #eeeeee;
   padding: 2rem;
   text-align: center;
+  pointer-events: all;
+}
+
+.center_loader {
+  width: 100%;
+  text-align: center;
+  color: #a1a2cd;
+  margin-top: 5rem;
 }
 
 .popupmask {
-  z-index: 3;
+  z-index: 4;
   position: absolute;
   top: 0;
   left: 0;
@@ -622,6 +648,9 @@ td {
   background: rgba(0,0,0,0.5);
 }
 
+.action_required {
+  text-align: center !important;
+}
 
 .disabled {
   background: #2d3436 !important;
@@ -685,6 +714,7 @@ hr {
   color: #eeeeee;
   padding: 2rem;
   font-size: 10pt;
+  border-radius: 5px;
 }
 
 #view_listing button {
@@ -735,4 +765,23 @@ hr {
   top: 20rem;
   padding: 0 !important;
   width: calc(100% - 2rem) !important;
+}
+
+.token-balances {
+  position: absolute;
+  left: 0rem;
+  right: 0rem;
+  bottom: 0;
+  top: 24rem;
+  padding: 0 2rem !important;
+  width: calc(100% - 2rem) !important;
+  overflow-y: scroll;
+}
+
+
+.account {
+  padding: 0 !important;
+  width: 100%;
+  text-align: left !important;
+  height: auto !important;
 }

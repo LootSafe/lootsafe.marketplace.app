@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Loader v-if="fetching" />
     <div class="listings_wrapper my_listings">
       <table class="listings">
         <thead>
@@ -9,10 +10,11 @@
           <th align="left">NAME</th>
           <th align="left">QUANTITY</th>
           <th align="left">COST</th>
+          <th align="left">COST PER UNIT</th>
           <th></th>
         </thead>
         <tbody>
-          <tr v-for="listing in listings" v-bind:key="listing.id">
+          <tr v-for="listing in listings" v-bind:key="listing.id" v-if="$root.$data.tokens[listing.asset]">
             <td class="small_td">
               <img :src="generateBlockies(listing.merchant)" alt="Merchant Icon" :title="listing.merchant" class="asset_circle">
             </td>
@@ -24,18 +26,22 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span v-if="tokenNames[listing.asset] && tokenNames[listing.asset].name">{{ tokenNames[listing.asset].name }}</span>
-                <span v-else>{{ listing.asset }} <i class="fas fa-spin fa-spinner"></i></span>
+                <span>{{ $root.$data.tokens[listing.asset].name }}</span>
               </span>
             </td>
             <td>
-              <span class="asset_quantity" v-if="tokenNames[listing.asset]">
-                {{ (listing.amount / Math.pow(10, tokenNames[listing.asset].decimals)).toFixed(2) }}
+              <span class="asset_quantity">
+                {{ (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
             </td>
             <td>
               <span class="asset_cost">
-                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2) }}
+                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+            </td>
+            <td>
+              <span class="asset_cost">
+                <img height="10" src="/static/img/logo_purple.png" /> {{ ((listing.value / Math.pow(10, 18)).toFixed(2) / (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
             </td>
             <td class="controls">
@@ -49,24 +55,22 @@
     </div>
   </div>
 </template>
-
 <script>
 /* global web3 */
-import { apiAddress, provider } from '../../config'
+import Loader from '@/components/parts/Loader'
+import { apiAddress } from '../../config'
 import blockies from 'ethereum-blockies-png'
 
-import ETH from 'ethjs'
-import { abi } from '../../../contracts/erc20/build/contracts/EIP20.json'
 import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
-
-const eth = new ETH(new ETH.HttpProvider(provider))
 
 export default {
   name: 'Listings',
   components: {
+    Loader
   },
   data () {
     return {
+      fetching: true,
       loading: true,
       showTxDialog: false,
       showTxCancelledDialog: false,
@@ -92,9 +96,6 @@ export default {
         market_address: this.$root.$data.market.address,
         merchant: web3.toChecksumAddress(web3.eth.coinbase)
       }
-
-      console.log('payload', payload)
-
       // TODO: Make market address correlate to market dropdown
       fetch(`${apiAddress}/market/listings/filtered`,
         {
@@ -106,24 +107,15 @@ export default {
           return response.json()
         })
         .then((json) => {
-          console.log('json', json)
           this.listings = json.data.reverse()
 
           this.listings.map(listing => {
-            const token = eth.contract(abi).at(listing.asset)
             if (!this.tokenNames[listing.asset]) {
-              token.name().then(name => {
-                token.decimals().then(decimals => {
-                  this.tokenNames = Object.assign({}, this.tokenNames, {
-                    [listing.asset]: {
-                      name: name[0],
-                      decimals: decimals[0]
-                    }
-                  })
-                })
-              })
+              this.$root.getToken(listing.asset)
             }
           })
+
+          this.fetching = false
         })
     },
     cancelListing: function (listing) {
@@ -131,7 +123,9 @@ export default {
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)
+      this.$root.$data.actionRequired = true
       contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
+        this.$root.$data.actionRequired = false
         // TODO: Listing fulfilled popup
         if (err) {
           this.$parent.showTxCancelledDialog = true

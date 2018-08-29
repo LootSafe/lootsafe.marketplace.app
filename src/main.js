@@ -3,7 +3,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-
+import VueTour from 'vue-tour'
+import Eth from 'ethjs'
 /* global web3 */
 import {
   defaultMarket,
@@ -12,14 +13,15 @@ import {
   autoRefreshInterval
 } from './config'
 
-import Eth from 'ethjs'
-
 import marketABI from '../contracts/erc20/build/contracts/Market.json'
 import { abi } from '../contracts/erc20/build/contracts/EIP20.json'
+require('vue-tour/dist/vue-tour.css')
 
 const eth = new Eth(new Eth.HttpProvider(provider)) // eslint-disable-line no-unused-vars
 
 Vue.config.productionTip = false
+
+Vue.use(VueTour)
 
 /* eslint-disable no-new */
 new Vue({
@@ -27,6 +29,7 @@ new Vue({
   router,
   components: { App },
   created () {
+    this.listenToSockets()
     this.checkWeb3()
     setInterval(() => {
       this.getTokens()
@@ -43,6 +46,13 @@ new Vue({
     this.getVault()
   },
   methods: {
+    listenToSockets: function () {
+      // const wsClient = new WebSocket('ws://0.0.0.0:8283')
+      // console.log('csfasdf')
+      // wsClient.onmessage = msg => {
+      //   console.log('websocket message', msg)
+      // }
+    },
     cancelWeb3Poll: function () {
       this.web3status = 'opt-out'
       clearInterval(this.web3poll)
@@ -62,30 +72,33 @@ new Vue({
       const contract = web3.eth.contract(marketplace).at(marketAddress)
 
       contract.vaults.call(web3.eth.coinbase, (err, resp) => {
-        console.log('resp', resp)
         if (err) console.warn('Error getting vault address', err)
         this.vault = resp
+      })
+    },
+    getToken: function (asset) {
+      const token = eth.contract(abi).at(asset)
+      token.name().then(name => {
+        token.decimals().then(decimals => {
+          const owner = this.$root.$data.vault
+          token.balances(owner).then(balance => {
+            this.tokens = Object.assign({}, this.tokens, {
+              [asset]: {
+                name: name[0],
+                decimals: decimals[0],
+                balance: balance[0],
+                address: asset
+              }
+            })
+          })
+        })
       })
     },
     getTokens: function () {
       this.syncing = true
       setTimeout(() => { this.syncing = false }, 500)
       this.defaultTokens.map(asset => {
-        const token = eth.contract(abi).at(asset)
-        token.name().then(name => {
-          token.decimals().then(decimals => {
-            const owner = this.$root.$data.vault
-            token.balances(owner).then(balance => {
-              this.tokens = Object.assign({}, this.tokens, {
-                [asset]: {
-                  name: name[0],
-                  decimals: decimals[0],
-                  balance: balance[0]
-                }
-              })
-            })
-          })
-        })
+        this.getToken(asset)
       })
     }
   },
@@ -94,8 +107,9 @@ new Vue({
       vault: '0x0000000000000000000000000000000000000000',
       account: '0x0000000000000000000000000000000000000000',
       web3poll: null,
+      actionRequired: false,
       syncing: false,
-      tokens: false,
+      tokens: {},
       pollInterval: 10,
       web3status: 'pending',
       market: defaultMarket,

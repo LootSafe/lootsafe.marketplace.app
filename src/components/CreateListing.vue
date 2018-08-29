@@ -1,6 +1,7 @@
 <template>
   <div>
     <GetMetamask v-if="$root.$data.web3status === 'missing'" />
+    <ActionRequired v-if="$root.$data.actionRequired"></ActionRequired>
     <Header />
     <Sidebar />
     <Chat />
@@ -28,12 +29,12 @@
           <div class="half">
             <!-- TODO: Add logic to automatically add decimals to number -->
             <label for="amount">Amount for Sale</label><br /><br />
-            <input id="amount" class="full_input" style="width: calc(100% - 2rem);" type="number" placeholder="1" v-model="assetAmount"/>
+            <input id="amount" class="full_input" style="width: calc(100% - 2rem);" type="number" placeholder="Enter the amount you wish to sell" v-model="assetAmount"/>
           </div>
           <div class="half">
             <!-- TODO: Add logic to automatically add decimals to number -->
             <label for="cost">Cost for Item</label><br /><br />
-            <input id="cost" class="full_input" type="number" placeholder="100" v-model="assetCost" />
+            <input id="cost" class="full_input" type="number" placeholder="Enter the cost for the item(s)" v-model="assetCost" />
           </div>
           <p v-if="error" class="error">{{ error }}</p>
           <div class="half">&nbsp;</div>
@@ -64,6 +65,8 @@ import Chat from '@/components/parts/Chat'
 import MyListings from '@/components/parts/MyListings'
 import ViewListing from '@/components/parts/ViewListing'
 import GetMetamask from '@/components/parts/GetMetamask'
+import ActionRequired from '@/components/parts/ActionRequired'
+
 import { provider, defaultTokens } from '../config'
 
 import txDialog from '@/components/parts/txDialog'
@@ -85,7 +88,8 @@ export default {
     GetMetamask,
     txDialog,
     MyListings,
-    txCancelledDialog
+    txCancelledDialog,
+    ActionRequired
   },
   methods: {
     createListing: function () {
@@ -93,19 +97,26 @@ export default {
         const assetCost = new BigNumber(this.assetCost).multipliedBy(new BigNumber(10).pow(18))
         const assetAmount = new BigNumber(this.assetAmount).multipliedBy(new BigNumber(10).pow(this.$root.$data.tokens[this.selectedAsset].decimals))
 
-        const marketAddress = this.$root.$data.market.address
-        const marketplace = marketABI.abi
-        const contract = web3.eth.contract(marketplace).at(marketAddress)
-        contract.create_listing(this.selectedAsset, assetAmount.toString(), assetCost.toString(), { from: web3.eth.coinbase }, (err, tx) => {
-          if (err) {
-            this.showTxCancelledDialog = true
-          } else {
-            this.selectedAsset = ''
-            this.assetCost = null
-            this.assetAmount = null
-            this.showTxDialog = tx
-          }
-        })
+        if (assetAmount.gt(this.$root.$data.tokens[this.selectedAsset].balance)) {
+          this.error = 'You don\'t have ' + this.assetAmount + ' ' + this.$root.$data.tokens[this.selectedAsset].name + ' to sell!'
+        } else {
+          const marketAddress = this.$root.$data.market.address
+          const marketplace = marketABI.abi
+          const contract = web3.eth.contract(marketplace).at(marketAddress)
+          this.$root.$data.actionRequired = true
+          contract.create_listing(this.selectedAsset, assetAmount.toString(), assetCost.toString(), { from: web3.eth.coinbase }, (err, tx) => {
+            this.$root.$data.actionRequired = false
+            if (err) {
+              this.showTxCancelledDialog = true
+            } else {
+              this.selectedAsset = ''
+              this.assetCost = null
+              this.assetAmount = null
+              this.showTxDialog = tx
+            }
+          })
+          this.error = false
+        }
       } else {
         this.error = 'Missing required information to create listing!'
       }

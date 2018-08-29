@@ -1,6 +1,7 @@
 <template>
   <div>
     <GetMetamask v-if="$root.$data.web3status === 'missing'" />
+    <ActionRequired v-if="$root.$data.actionRequired"></ActionRequired>
     <Header />
     <Sidebar />
     <Chat />
@@ -18,10 +19,10 @@ import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
 import GetMetamask from '@/components/parts/GetMetamask'
 import Vault from '@/components/parts/Vault'
+import ActionRequired from '@/components/parts/ActionRequired'
 
 import { defaultMarket } from '../config'
 
-import Eth from 'ethjs'
 import marketABI from '../../contracts/erc20/build/contracts/Market.json'
 
 export default {
@@ -32,7 +33,8 @@ export default {
     Chat,
     Listings,
     GetMetamask,
-    Vault
+    Vault,
+    ActionRequired
   },
   methods: {
     getVault: function () {
@@ -47,13 +49,14 @@ export default {
     },
     createVault: function () {
       const marketAddress = this.market.address
-
+      this.$root.$data.actionRequired = true
       web3.eth.sendTransaction({
         from: web3.eth.coinbase,
         to: marketAddress,
         value: 0,
         data: '0x0a'
       }, (err, resp) => {
+        this.$root.$data.actionRequired = false
         if (err) console.warn('err creating vault', err)
         this.createTx = resp
         this.pollVault()

@@ -13,10 +13,11 @@
           <th align="left">NAME</th>
           <th align="left">QUANTITY</th>
           <th align="left">COST</th>
+          <th align="left">COST PER UNIT</th>
           <th></th>
         </thead>
         <tbody>
-          <tr v-for="listing in listings" v-bind:key="listing.id">
+          <tr v-for="listing in listings" v-bind:key="listing.id" v-if="$root.$data.tokens[listing.asset]">
             <td class="small_td">
               <img :src="generateBlockies(listing.merchant)" alt="Merchant Icon" :title="listing.merchant" class="asset_circle">
             </td>
@@ -28,18 +29,22 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span v-if="tokenNames[listing.asset] && tokenNames[listing.asset].name">{{ tokenNames[listing.asset].name }}</span>
-                <span v-else>{{ listing.asset }} <i class="fas fa-spin fa-spinner"></i></span>
+                <span>{{ $root.$data.tokens[listing.asset].name }}</span>
               </span>
             </td>
             <td>
-              <span class="asset_quantity" v-if="tokenNames[listing.asset]">
-                {{ (listing.amount / Math.pow(10, tokenNames[listing.asset].decimals)).toFixed(2) }}
+              <span class="asset_quantity">
+                {{ (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
             </td>
             <td>
               <span class="asset_cost">
-                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2) }}
+                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+            </td>
+            <td>
+              <span class="asset_cost">
+                <img height="10" src="/static/img/logo_purple.png" /> {{ ((listing.value / Math.pow(10, 18)).toFixed(2) / (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
             </td>
             <td class="controls">
@@ -47,12 +52,13 @@
               <button v-else-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase()" class="disabled">FULFILL</button>
               <button class="danger" v-else v-on:click="cancelListing(listing)">CANCEL</button>
               <button class="detail" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
-              <button class="default" v-on:click="setSearchString('asset', listing.asset)" >FIND MORE</button>
-              <button class="info" v-on:click="setSearchString('merchant', listing.merchant)"><i class="far fa-user-tag"></i></button>
+              <button class="default" v-on:click="setSearchString('asset', listing.asset)" title="Search for more of these items">FIND MORE</button>
+              <button class="info" v-on:click="setSearchString('merchant', listing.merchant)" title="Search by merchant"><i class="far fa-user-tag"></i></button>
             </td>
           </tr>
         </tbody>
       </table>
+      <Loader v-if="fetching" />
     </div>
   </div>
 </template>
@@ -64,15 +70,12 @@ import ethereumAddress from 'ethereum-address'
 import ViewListing from '@/components/parts/ViewListing'
 import txDialog from '@/components/parts/txDialog'
 import txCancelledDialog from '@/components/parts/txCancelledDialog'
+import Loader from '@/components/parts/Loader'
 
-import { apiAddress, provider } from '../../config'
+import { apiAddress } from '../../config'
 import blockies from 'ethereum-blockies-png'
 
-import ETH from 'ethjs'
-import { abi } from '../../../contracts/erc20/build/contracts/EIP20.json'
 import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
-
-const eth = new ETH(new ETH.HttpProvider(provider))
 
 export default {
   name: 'Listings',
@@ -80,10 +83,12 @@ export default {
     Search,
     ViewListing,
     txDialog,
-    txCancelledDialog
+    txCancelledDialog,
+    Loader
   },
   data () {
     return {
+      fetching: true,
       loading: true,
       showTxDialog: false,
       showTxCancelledDialog: false,
@@ -97,6 +102,7 @@ export default {
   created () {
     this.getListings('')
     // TODO: poll listings
+    // TODO: Subscribe to websocket server and update listings on new listing events
   },
   methods: {
     generateBlockies: seed => {
@@ -137,20 +143,12 @@ export default {
           this.listings = json.data.reverse()
 
           this.listings.map(listing => {
-            const token = eth.contract(abi).at(listing.asset)
-            if (!this.tokenNames[listing.asset]) {
-              token.name().then(name => {
-                token.decimals().then(decimals => {
-                  this.tokenNames = Object.assign({}, this.tokenNames, {
-                    [listing.asset]: {
-                      name: name[0],
-                      decimals: decimals[0]
-                    }
-                  })
-                })
-              })
+            if (!this.$root.$data.tokens[listing.asset]) {
+              this.$root.getToken(listing.asset)
             }
           })
+
+          this.fetching = false
         })
     },
     fulfill: function (listing) {
@@ -158,8 +156,10 @@ export default {
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)
+      this.$root.$data.actionRequired = true
       contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
         // TODO: Listing fulfilled popup
+        this.$root.$data.actionRequired = false
         if (err) {
           this.showTxCancelledDialog = true
         } else {
@@ -172,7 +172,9 @@ export default {
       const listingId = listing.id
       const marketplace = marketABI.abi
       const contract = web3.eth.contract(marketplace).at(marketAddress)
+      this.$root.$data.actionRequired = true
       contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
+        this.$root.$data.actionRequired = false
         // TODO: Listing fulfilled popup
         if (err) {
           this.showTxCancelledDialog = true
