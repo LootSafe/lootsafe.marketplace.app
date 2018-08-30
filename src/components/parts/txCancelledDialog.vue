@@ -4,7 +4,7 @@
     <div id="view_listing">
       <h2>Tx Cancelled</h2>
       <p>Your transaction has been cancelled.</p>
-      <button style="width: 100%;" v-on:click="$parent.showTxCancelledDialog = false">Okay</button>
+      <button style="width: 100%;" v-on:click="$root.$data.showTxCancelledDialog = false">Okay</button>
     </div>
   </div>
 

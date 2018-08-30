@@ -1,6 +1,9 @@
 <template>
   <div>
     <v-tour name="myTour" :steps="steps" :callbacks="tourCallbacks"></v-tour>
+    <txDialog v-if="$root.$data.showTxDialog"></txDialog>
+    <txCancelledDialog v-if="$root.$data.showTxCancelledDialog"></txCancelledDialog>
+    <ViewListing v-if="$root.$data.viewListing"></ViewListing>
     <ActionRequired v-if="$root.$data.actionRequired"></ActionRequired>
     <div :class="tourRunning ? 'tour-disable' : ''">
       <SearchHelp v-if="searchTips"></SearchHelp>
@@ -23,6 +26,10 @@ import Listings from '@/components/parts/Listings'
 import SearchHelp from '@/components/parts/SearchHelp'
 import ActionRequired from '@/components/parts/ActionRequired'
 import GetMetamask from '@/components/parts/GetMetamask'
+import txDialog from '@/components/parts/txDialog'
+import txCancelledDialog from '@/components/parts/txCancelledDialog'
+import ViewListing from '@/components/parts/ViewListing'
+import jazzicon from 'jazzicon'
 
 import { defaultMarket } from '../config'
 
@@ -35,7 +42,10 @@ export default {
     Chat,
     Listings,
     GetMetamask,
-    ActionRequired
+    ViewListing,
+    ActionRequired,
+    txDialog,
+    txCancelledDialog
   },
   mounted: function () {
     if (!localStorage.getItem('tour-opt-out') || localStorage.getItem('tour-opt-out') === 'false') {
@@ -51,6 +61,10 @@ export default {
     restartTour: function () {
       this.$tours['myTour'].start()
       this.tourRunning = true
+    },
+    getJazzicon: (seed, size = 35) => {
+      const addr = seed.slice(2, 10)
+      return jazzicon(size, parseInt(addr, 16))
     }
   },
   data () {
@@ -90,7 +104,7 @@ export default {
           }
         },
         {
-          target: '#search',
+          target: '.main-search',
           content: `<div>Looking for something more? Here you can search the marketplace for more listings.</div>`,
           params: {
             placement: 'bottom'

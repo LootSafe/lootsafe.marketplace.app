@@ -17,8 +17,12 @@ module.exports = {
   defaultMarket: {
     '_id': '5b654c17910a780b70365fd5',
     'name': 'LootSafe',
-    'address': '0x83db4e93FA824739c917F05bA7D946a546869338',
+    'address': '0x159f3be04024d12C4adB8f7FDEb0931B7949965C',
     'token_type': 'ERC20'
   },
-  autoRefreshInterval: 5000
+  autoRefreshInterval: 5000,
+  pubnub: {
+    publishKey: 'pub-c-98125911-7f1f-4242-a1e7-793109201f5d',
+    subscribeKey: 'sub-c-4fd1528c-ac0f-11e8-bf00-aaab7b0b8683'
+  }
 }

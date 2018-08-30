@@ -12,7 +12,6 @@
     <div v-else>
       <p>You don't have a vault yet!</p>
       <button class="default" v-on:click="$parent.createVault()"><i class="far fa-plus"></i> Create Vault</button>
-      <p v-if="$parent.createTx"><i class="fa fa-spin fa-spinner"></i> Your transaction has been created {{ $parent.createTx }}, please wait for it to be mined...</p>
     </div>
     <hr>
     <h3 v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">Balances
@@ -29,15 +28,21 @@
           <th align="left">Icon</th>
           <th align="left">Name</th>
           <th align="left">Address</th>
-          <th align="right">Balance</th>
+          <th align="right">Available</th>
+          <th align="right">Locked</th>
           <th align="center"></th>
         </thead>
         <tbody>
-          <tr v-for="token in Object.values($root.$data.tokens).sort((a, b) => b.balance - a.balance)" v-bind:key="token" v-if="$root.$data.defaultTokens.indexOf(token.address) > -1">
+          <tr v-for="token in Object.values($root.$data.tokens).sort((a, b) => b.balance - a.balance)" v-bind:key="token.address" v-if="$root.$data.defaultTokens.indexOf(token.address) > -1">
             <td><div v-html="getJazzicon(token.address, 30).outerHTML"></div></td>
             <td><strong>{{ token.name }}</strong></td>
             <td><a :href="etherscan + 'token/' + token.address" target="_blank">{{ token.address }}</a></td>
-            <td class="rightAlign">{{ (token.balance / Math.pow(10, token.decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
+            <td class="rightAlign">
+              {{ (token.balance.sub(token.locked) / Math.pow(10, token.decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+            </td>
+            <td class="rightAlign">
+              <i class="far fa-lock-alt" style="cursor: help;" title="Locked assets are not available for withdraw, locked assets are assets currently held in listings."></i> {{ (token.locked / Math.pow(10, token.decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+            </td>
             <td class="rightAlign">
               <button class="default small" v-on:click="withdrawDialog = token">
                 <i class="far fa-angle-double-right"></i> Withdraw

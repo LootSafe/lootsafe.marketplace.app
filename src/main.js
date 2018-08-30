@@ -14,6 +14,7 @@ import {
 } from './config'
 
 import marketABI from '../contracts/erc20/build/contracts/Market.json'
+import vaultABI from '../contracts/erc20/build/contracts/Vault.json'
 import { abi } from '../contracts/erc20/build/contracts/EIP20.json'
 require('vue-tour/dist/vue-tour.css')
 
@@ -46,6 +47,36 @@ new Vue({
     this.getVault()
   },
   methods: {
+    fulfill: function (listing) {
+      const marketAddress = this.$root.$data.market.address
+      const listingId = listing.id
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+      this.$root.$data.actionRequired = true
+      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
+        this.$root.$data.actionRequired = false
+        if (err) {
+          this.showTxCancelledDialog = true
+        } else {
+          this.showTxDialog = tx
+        }
+      })
+    },
+    cancelListing: function (listing) {
+      const marketAddress = this.$root.$data.market.address
+      const listingId = listing.id
+      const marketplace = marketABI.abi
+      const contract = web3.eth.contract(marketplace).at(marketAddress)
+      this.actionRequired = true
+      contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
+        this.actionRequired = false
+        if (err) {
+          this.showTxCancelledDialog = true
+        } else {
+          this.showTxDialog = tx
+        }
+      })
+    },
     listenToSockets: function () {
       // const wsClient = new WebSocket('ws://0.0.0.0:8283')
       // console.log('csfasdf')
@@ -74,21 +105,26 @@ new Vue({
       contract.vaults.call(web3.eth.coinbase, (err, resp) => {
         if (err) console.warn('Error getting vault address', err)
         this.vault = resp
+        this.getTokens()
       })
     },
     getToken: function (asset) {
       const token = eth.contract(abi).at(asset)
+      const vaultContract = eth.contract(vaultABI.abi).at(this.vault)
       token.name().then(name => {
         token.decimals().then(decimals => {
           const owner = this.$root.$data.vault
           token.balances(owner).then(balance => {
-            this.tokens = Object.assign({}, this.tokens, {
-              [asset]: {
-                name: name[0],
-                decimals: decimals[0],
-                balance: balance[0],
-                address: asset
-              }
+            vaultContract.locked_assets(asset).then(lockedAssets => {
+              this.tokens = Object.assign({}, this.tokens, {
+                [asset]: {
+                  name: name[0],
+                  decimals: decimals[0],
+                  balance: balance[0],
+                  address: asset,
+                  locked: lockedAssets[0]
+                }
+              })
             })
           })
         })
@@ -108,6 +144,11 @@ new Vue({
       account: '0x0000000000000000000000000000000000000000',
       web3poll: null,
       actionRequired: false,
+      viewListing: false,
+      waitingForTx: false,
+      selectedListing: false,
+      showTxDialog: false,
+      showTxCancelledDialog: false,
       syncing: false,
       tokens: {},
       pollInterval: 10,

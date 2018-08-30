@@ -5,8 +5,8 @@
       <h2>Tx Created</h2>
       <p>Your transaction has been created, once mined your funds will be sent to the address you used to create your vault!</p>
       <p>The item you purchased may still display on the market until the transaction is mined successfully.</p>
-      <p>Tx: <a :href="etherscan + 'tx/' + $parent.showTxDialog" target="_blank" class="smallLink">{{ $parent.showTxDialog }}</a></p>
-      <button style="width: 100%;" v-on:click="$parent.showTxDialog = false">Okay</button>
+      <p>Tx: <a :href="etherscan + 'tx/' + $root.$data.showTxDialog" target="_blank" class="smallLink">{{ $root.$data.showTxDialog }}</a></p>
+      <button style="width: 100%;" v-on:click="$root.$data.showTxDialog = false">Okay</button>
     </div>
   </div>
 

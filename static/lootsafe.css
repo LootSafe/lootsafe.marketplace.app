@@ -54,12 +54,17 @@ header .navi {
 #search {
 	width: calc(100% - 2rem);
 	height: 5.5rem;
-	background: #232538;
+  background: rgb(35,37,56, 0.85);
   background-image: url('/static/img/search.png');
   background-size: auto;
   background-repeat: no-repeat;
   background-position-x: right;
 	padding: 2rem 1rem;
+}
+
+.searchbg {
+  background-image: url('/static/img/marketplace_bg.jpg');
+  background-size: cover;
 }
 
 
@@ -448,7 +453,7 @@ textarea, select, input, button { outline: none; }
 	position: absolute;
 	right: 0;
 	left: 0;
-	bottom: 0;
+	bottom: 2.5rem;
 	top: 10rem;
 	overflow-y: scroll;
   padding: 0 1rem;
@@ -649,6 +654,7 @@ td {
 }
 
 .action_required {
+  z-index: 6;
   text-align: center !important;
 }
 
@@ -796,4 +802,16 @@ hr {
   width: 100%;
   text-align: left !important;
   height: auto !important;
+}
+
+.paginator {
+  z-index: 2;
+  position: fixed;
+  bottom: 0;
+  left: 24rem;
+  right: 0;
+  height: 2.5rem;
+  background: #1e2031;
+  text-align: center;
+  color: #a1a2cd;
 }

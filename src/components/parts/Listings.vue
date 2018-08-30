@@ -1,10 +1,20 @@
 <template>
   <div>
-    <Search :keyword="keyword"/>
-    <ViewListing v-if="viewListing"></ViewListing>
-    <txDialog v-if="showTxDialog"></txDialog>
-    <txCancelledDialog v-if="showTxCancelledDialog"></txCancelledDialog>
+    <div class="searchbg">
+      <Search :keyword="keyword"/>
+    </div>
     <div class="listings_wrapper">
+      <div class="paginator">
+        <button :class="(skip === 0) ? 'small info' : 'small default'" v-on:click="handlePrevPage()">
+          <i class="far fa-angle-double-left"></i> Prev
+        </button>
+        <span class="small">
+          {{  (skip === 0) ? '0 - 15' : (skip > 0) ? `${skip} - ${skip + listings.length}` : `0 - ${skip}` }}
+        </span>
+        <button :class="(listings.length < 15) ? 'small info' : 'small default'" v-on:click="handleNextPage()">
+          Next <i class="far fa-angle-double-right"></i>
+        </button>
+      </div>
       <table class="listings">
         <thead>
         <th>SELLER</th>
@@ -48,10 +58,10 @@
               </span>
             </td>
             <td class="controls">
-              <button v-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase() && $root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="fulfill(listing)">FULFILL</button>
+              <button v-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase() && $root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="$root.fulfill(listing)">FULFILL</button>
               <button v-else-if="listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase()" class="disabled">FULFILL</button>
-              <button class="danger" v-else v-on:click="cancelListing(listing)">CANCEL</button>
-              <button class="detail" v-on:click="selectedListing = listing; viewListing = true"><i class="far fa-eye"></i></button>
+              <button class="danger" v-else v-on:click="$root.cancelListing(listing)">CANCEL</button>
+              <button class="detail" v-on:click="$root.$data.selectedListing = listing; $root.$data.viewListing = true"><i class="far fa-eye"></i></button>
               <button class="default" v-on:click="setSearchString('asset', listing.asset)" title="Search for more of these items">FIND MORE</button>
               <button class="info" v-on:click="setSearchString('merchant', listing.merchant)" title="Search by merchant"><i class="far fa-user-tag"></i></button>
             </td>
@@ -68,34 +78,27 @@
 import Search from '@/components/parts/Search'
 import ethereumAddress from 'ethereum-address'
 import ViewListing from '@/components/parts/ViewListing'
-import txDialog from '@/components/parts/txDialog'
-import txCancelledDialog from '@/components/parts/txCancelledDialog'
 import Loader from '@/components/parts/Loader'
 
 import { apiAddress } from '../../config'
 import blockies from 'ethereum-blockies-png'
 import jazzicon from 'jazzicon'
 
-import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
-
 export default {
   name: 'Listings',
   components: {
     Search,
     ViewListing,
-    txDialog,
-    txCancelledDialog,
     Loader
   },
   data () {
     return {
       fetching: true,
       loading: true,
-      showTxDialog: false,
-      showTxCancelledDialog: false,
       listings: [],
       tokenNames: {},
       keyword: '',
+      skip: 0,
       viewListing: false,
       selectedListing: {}
     }
@@ -106,6 +109,18 @@ export default {
     // TODO: Subscribe to websocket server and update listings on new listing events
   },
   methods: {
+    handleNextPage: function () {
+      if (this.listings.length === 15) {
+        this.skip += 15
+        this.getListings(this.keyword)
+      }
+    },
+    handlePrevPage: function () {
+      if (this.skip > 0) {
+        this.skip -= 15
+        this.getListings(this.keyword)
+      }
+    },
     generateBlockies: seed => {
       return blockies.createDataURL({ seed })
     },
@@ -116,11 +131,13 @@ export default {
     setSearchString: function (type, str) {
       this.keyword = type === 'raw' ? str : type + ':' + str
       this.getListings(this.keyword)
+      this.skip = 0
     },
     getListings: function (keywords) {
       let payload = {
         market_address: this.$root.$data.market.address,
-        status: 0
+        status: 0,
+        skip: this.skip
       }
 
       let parts = keywords.split(',')
@@ -134,59 +151,46 @@ export default {
           payload.merchant = trimmed.split(':')[1]
         }
       })
-      // TODO: Make market address correlate to market dropdown
-      fetch(`${apiAddress}/market/listings/filtered`,
-        {
-          method: 'post',
-          'Content-Type': 'application/json',
-          body: JSON.stringify(payload)
-        })
-        .then((response) => {
-          return response.json()
-        })
-        .then((json) => {
-          this.listings = json.data.reverse()
 
-          this.listings.map(listing => {
-            if (!this.$root.$data.tokens[listing.asset]) {
-              this.$root.getToken(listing.asset)
-            }
+      if (!keywords || keywords.indexOf(':') > 1) {
+        // TODO: Make market address correlate to market dropdown
+        fetch(`${apiAddress}/market/listings/filtered`,
+          {
+            method: 'post',
+            'Content-Type': 'application/json',
+            body: JSON.stringify(payload)
           })
+          .then((response) => {
+            return response.json()
+          })
+          .then((json) => {
+            this.listings = json.data
 
-          this.fetching = false
-        })
-    },
-    fulfill: function (listing) {
-      const marketAddress = this.$root.$data.market.address
-      const listingId = listing.id
-      const marketplace = marketABI.abi
-      const contract = web3.eth.contract(marketplace).at(marketAddress)
-      this.$root.$data.actionRequired = true
-      contract.fulfill_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
-        // TODO: Listing fulfilled popup
-        this.$root.$data.actionRequired = false
-        if (err) {
-          this.showTxCancelledDialog = true
-        } else {
-          this.showTxDialog = tx
-        }
-      })
-    },
-    cancelListing: function (listing) {
-      const marketAddress = this.$root.$data.market.address
-      const listingId = listing.id
-      const marketplace = marketABI.abi
-      const contract = web3.eth.contract(marketplace).at(marketAddress)
-      this.$root.$data.actionRequired = true
-      contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
-        this.$root.$data.actionRequired = false
-        // TODO: Listing fulfilled popup
-        if (err) {
-          this.showTxCancelledDialog = true
-        } else {
-          this.showTxDialog = tx
-        }
-      })
+            this.listings.map(listing => {
+              if (!this.$root.$data.tokens[listing.asset]) {
+                this.$root.getToken(listing.asset)
+              }
+            })
+
+            this.fetching = false
+          })
+      } else {
+        fetch(`${apiAddress}/market/listings?keyword=${keywords}`)
+          .then((response) => {
+            return response.json()
+          })
+          .then((json) => {
+            this.listings = json.data
+
+            this.listings.map(listing => {
+              if (!this.$root.$data.tokens[listing.asset]) {
+                this.$root.getToken(listing.asset)
+              }
+            })
+
+            this.fetching = false
+          })
+      }
     }
   }
 }

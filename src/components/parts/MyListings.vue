@@ -45,9 +45,9 @@
               </span>
             </td>
             <td class="controls">
-              <button class="danger" v-if="$root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000' && listing.status === 0" v-on:click="cancelListing(listing)">CANCEL</button>
+              <button class="danger" v-if="$root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000' && listing.status === 0" v-on:click="$root.cancelListing(listing)">CANCEL</button>
               <button v-else class="disabled">CANCEL</button>
-              <button class="detail" v-on:click="$parent.selectedListing = listing; $parent.viewListing = true"><i class="far fa-eye"></i></button>
+              <button class="detail" v-on:click="$root.$data.selectedListing = listing; $root.$data.viewListing = true"><i class="far fa-eye"></i></button>
             </td>
           </tr>
         </tbody>
@@ -60,8 +60,6 @@
 import Loader from '@/components/parts/Loader'
 import { apiAddress } from '../../config'
 import jazzicon from 'jazzicon'
-
-import marketABI from '../../../contracts/erc20/build/contracts/Market.json'
 
 export default {
   name: 'Listings',
@@ -118,22 +116,6 @@ export default {
 
           this.fetching = false
         })
-    },
-    cancelListing: function (listing) {
-      const marketAddress = this.$root.$data.market.address
-      const listingId = listing.id
-      const marketplace = marketABI.abi
-      const contract = web3.eth.contract(marketplace).at(marketAddress)
-      this.$root.$data.actionRequired = true
-      contract.cancel_listing(listingId, { from: web3.eth.coinbase }, (err, tx) => {
-        this.$root.$data.actionRequired = false
-        // TODO: Listing fulfilled popup
-        if (err) {
-          this.$parent.showTxCancelledDialog = true
-        } else {
-          this.$parent.showTxDialog = tx
-        }
-      })
     }
   }
 }
