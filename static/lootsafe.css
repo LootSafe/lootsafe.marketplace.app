@@ -39,6 +39,15 @@ header {
 	top: 0;
 }
 
+.chatlink a {
+  text-decoration: none;
+  color: #a1a2cd;
+}
+
+.chatlink {
+  color: #ffeaa7;
+}
+
 header .navi {
 	height: 3rem;
 	position: absolute;

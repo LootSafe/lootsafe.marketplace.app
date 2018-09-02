@@ -74,15 +74,15 @@
 </template>
 
 <script>
-/* global web3 */
 import Search from '@/components/parts/Search'
-import ethereumAddress from 'ethereum-address'
 import ViewListing from '@/components/parts/ViewListing'
 import Loader from '@/components/parts/Loader'
-
-import { apiAddress } from '../../config'
-import blockies from 'ethereum-blockies-png'
-import jazzicon from 'jazzicon'
+import data from '@/components/logic/listings/data'
+import handleNextPage from '@/components/logic/listings/methods/handleNextPage'
+import handlePrevPage from '@/components/logic/listings/methods/handlePrevPage'
+import getListings from '@/components/logic/listings/methods/getListings'
+import setSearchString from '@/components/logic/listings/methods/setSearchString'
+import getJazzicon from '@/components/logic/global/methods/getJazzicon'
 
 export default {
   name: 'Listings',
@@ -92,106 +92,17 @@ export default {
     Loader
   },
   data () {
-    return {
-      fetching: true,
-      loading: true,
-      listings: [],
-      tokenNames: {},
-      keyword: '',
-      skip: 0,
-      viewListing: false,
-      selectedListing: {}
-    }
+    return data
   },
   created () {
     this.getListings('')
-    // TODO: poll listings
-    // TODO: Subscribe to websocket server and update listings on new listing events
   },
   methods: {
-    handleNextPage: function () {
-      if (this.listings.length === 15) {
-        this.skip += 15
-        this.getListings(this.keyword)
-      }
-    },
-    handlePrevPage: function () {
-      if (this.skip > 0) {
-        this.skip -= 15
-        this.getListings(this.keyword)
-      }
-    },
-    generateBlockies: seed => {
-      return blockies.createDataURL({ seed })
-    },
-    getJazzicon: (seed, size = 35) => {
-      const addr = seed.slice(2, 10)
-      return jazzicon(size, parseInt(addr, 16))
-    },
-    setSearchString: function (type, str) {
-      this.keyword = type === 'raw' ? str : type + ':' + str
-      this.getListings(this.keyword)
-      this.skip = 0
-    },
-    getListings: function (keywords) {
-      let payload = {
-        market_address: this.$root.$data.market.address,
-        status: 0,
-        skip: this.skip
-      }
-
-      let parts = keywords.split(',')
-
-      parts.map(part => {
-        const trimmed = part.trim()
-        if (trimmed.includes('asset:') && trimmed.split(':')[0] === 'asset' && ethereumAddress.isAddress(trimmed.split(':')[1])) {
-          payload.asset = trimmed.split(':')[1]
-        }
-        if (trimmed.includes('merchant:') && trimmed.split(':')[0] === 'merchant' && ethereumAddress.isAddress(trimmed.split(':')[1])) {
-          payload.merchant = trimmed.split(':')[1]
-        }
-      })
-
-      if (!keywords || keywords.indexOf(':') > 1) {
-        // TODO: Make market address correlate to market dropdown
-        fetch(`${apiAddress}/market/listings/filtered`,
-          {
-            method: 'post',
-            'Content-Type': 'application/json',
-            body: JSON.stringify(payload)
-          })
-          .then((response) => {
-            return response.json()
-          })
-          .then((json) => {
-            this.listings = json.data
-
-            this.listings.map(listing => {
-              if (!this.$root.$data.tokens[listing.asset]) {
-                this.$root.getToken(listing.asset)
-              }
-            })
-
-            this.fetching = false
-          })
-      } else {
-        fetch(`${apiAddress}/market/listings?keyword=${keywords}`)
-          .then((response) => {
-            return response.json()
-          })
-          .then((json) => {
-            this.listings = json.data
-
-            this.listings.map(listing => {
-              if (!this.$root.$data.tokens[listing.asset]) {
-                this.$root.getToken(listing.asset)
-              }
-            })
-
-            this.fetching = false
-          })
-      }
-    }
+    handleNextPage,
+    handlePrevPage,
+    getJazzicon,
+    setSearchString,
+    getListings: getListings
   }
 }
 </script>

@@ -30,19 +30,19 @@
           <div class="half">
             <!-- TODO: Add logic to automatically add decimals to number -->
             <label for="amount">Amount for Sale</label><br /><br />
-            <input id="amount" class="full_input" style="width: calc(100% - 2rem);" type="number" placeholder="Enter the amount you wish to sell" v-model="assetAmount"/>
+            <input id="amount" class="full_input" style="width: calc(100% - 2rem);" type="number" placeholder="Enter the amount you wish to sell" v-model="assetAmount" v-on:keyup="calculateCost()"/>
           </div>
           <div class="half">
             <!-- TODO: Add logic to automatically add decimals to number -->
-            <label for="cost">Cost for Item ( <img src="/static/img/logo_purple.png" width="25" /> )</label><br /><br />
-            <input id="cost" class="full_input" type="number" placeholder="Enter the cost for the item(s)" v-model="assetCost" />
+            <label for="cost">Cost Per Item - ( {{ calculatedAssetCost }} <img src="/static/img/logo_purple.png" width="25" /> Total Listing Cost ) </label><br /><br />
+            <input id="cost" class="full_input" type="number" placeholder="Enter the cost for the item(s)" v-model="assetCost" v-on:keyup="calculateCost()" />
           </div>
           <p v-if="error" class="error">{{ error }}</p>
           <div class="half">&nbsp;</div>
           <div class="half">
             <div class="half">&nbsp;</div>
             <div class="half">
-              <button class="full" v-on:click="createListing()">Create</button>
+              <button class="full" v-on:click="createListing()">Create Listing</button>
             </div>
           </div>
           <hr>
@@ -94,9 +94,15 @@ export default {
     ActionRequired
   },
   methods: {
+    calculateCost: function () {
+      if (this.assetAmount > 0 && this.assetCost > 0) {
+        const assetCost = new BigNumber(this.assetCost).multipliedBy(this.assetAmount)
+        this.calculatedAssetCost = assetCost.toString()
+      }
+    },
     createListing: function () {
       if (this.selectedAsset && this.assetCost > 0 && this.assetAmount > 0) {
-        const assetCost = new BigNumber(this.assetCost).multipliedBy(new BigNumber(10).pow(18))
+        const assetCost = new BigNumber(this.assetCost).multipliedBy(this.assetAmount).multipliedBy(new BigNumber(10).pow(18))
         const assetAmount = new BigNumber(this.assetAmount).multipliedBy(new BigNumber(10).pow(this.$root.$data.tokens[this.selectedAsset].decimals))
 
         if (assetAmount.gt(this.$root.$data.tokens[this.selectedAsset].balance.sub(this.$root.$data.tokens[this.selectedAsset].locked))) {
@@ -136,6 +142,7 @@ export default {
       selectedAsset: '',
       viewListing: false,
       selectedListing: {},
+      calculatedAssetCost: 0,
       assetCost: null,
       assetAmount: null,
       tokens: false,

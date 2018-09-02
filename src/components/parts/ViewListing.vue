@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="popupmask"></div>
-    <div id="view_listing">
+    <div id="view_listing" v-if="$root.$data.tokens[$root.$data.selectedListing.asset]">
       <h2>View Listing</h2>
       <p>
         <strong>Asset: </strong>

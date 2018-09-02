@@ -34,7 +34,10 @@
           <div v-if="showAccount" class="account-dropdown">
             <ul>
               <li>
-                <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank"><fa class="far fa-eye"></fa> &nbsp; View Address</a>
+                <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank"><fa class="far fa-eye"></fa> &nbsp;View Address</a>
+              </li>
+              <li>
+                <a href="#" class="account"><fa class="far fa-file-contract"></fa>  &nbsp; View Contracts</a>
               </li>
             </ul>
           </div>
