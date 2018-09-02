@@ -56,8 +56,6 @@
 </template>
 
 <script>
-/* global web3 */
-
 import { BigNumber } from 'bignumber.js'
 
 import Header from '@/components/parts/Header'
@@ -67,18 +65,13 @@ import MyListings from '@/components/parts/MyListings'
 import GetMetamask from '@/components/parts/GetMetamask'
 import ActionRequired from '@/components/parts/ActionRequired'
 import ViewListing from '@/components/parts/ViewListing'
-import jazzicon from 'jazzicon'
 
-import { provider, defaultTokens } from '../config'
+import getJazzicon from '@/components/logic/global/methods/getJazzicon'
+import createListing from '@/components/logic/createListing/methods/createListing'
+import data from '@/components/logic/createListing/data'
 
 import txDialog from '@/components/parts/txDialog'
 import txCancelledDialog from '@/components/parts/txCancelledDialog'
-
-import Eth from 'ethjs'
-
-import marketABI from '../../contracts/erc20/build/contracts/Market.json'
-
-const eth = new Eth(new Eth.HttpProvider(provider)) // eslint-disable-line no-unused-vars
 
 export default {
   name: 'CreateListing',
@@ -100,54 +93,11 @@ export default {
         this.calculatedAssetCost = assetCost.toString()
       }
     },
-    createListing: function () {
-      if (this.selectedAsset && this.assetCost > 0 && this.assetAmount > 0) {
-        const assetCost = new BigNumber(this.assetCost).multipliedBy(this.assetAmount).multipliedBy(new BigNumber(10).pow(18))
-        const assetAmount = new BigNumber(this.assetAmount).multipliedBy(new BigNumber(10).pow(this.$root.$data.tokens[this.selectedAsset].decimals))
-
-        if (assetAmount.gt(this.$root.$data.tokens[this.selectedAsset].balance.sub(this.$root.$data.tokens[this.selectedAsset].locked))) {
-          this.error = 'You don\'t have ' + this.assetAmount + ' ' + this.$root.$data.tokens[this.selectedAsset].name + ' to sell!'
-        } else {
-          const marketAddress = this.$root.$data.market.address
-          const marketplace = marketABI.abi
-          const contract = web3.eth.contract(marketplace).at(marketAddress)
-          this.$root.$data.actionRequired = true
-          contract.create_listing(this.selectedAsset, assetAmount.toString(), assetCost.toString(), { from: web3.eth.coinbase }, (err, tx) => {
-            this.$root.$data.actionRequired = false
-            if (err) {
-              this.$root.$data.showTxCancelledDialog = true
-            } else {
-              this.selectedAsset = ''
-              this.assetCost = null
-              this.assetAmount = null
-              this.$root.$data.showTxDialog = tx
-            }
-          })
-          this.error = false
-        }
-      } else {
-        this.error = 'Missing required information to create listing!'
-      }
-    },
-    getJazzicon: (seed, size = 35) => {
-      const addr = seed.slice(2, 10)
-      return jazzicon(size, parseInt(addr, 16))
-    }
+    createListing,
+    getJazzicon
   },
   data () {
-    return {
-      error: false,
-      getTokensInterval: null,
-      syncing: false,
-      selectedAsset: '',
-      viewListing: false,
-      selectedListing: {},
-      calculatedAssetCost: 0,
-      assetCost: null,
-      assetAmount: null,
-      tokens: false,
-      defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens
-    }
+    return data
   }
 }
 </script>

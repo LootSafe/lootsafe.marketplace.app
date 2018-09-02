@@ -13,7 +13,6 @@
 </template>
 
 <script>
-/* global web3 */
 import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
@@ -23,12 +22,14 @@ import Vault from '@/components/parts/Vault'
 import ActionRequired from '@/components/parts/ActionRequired'
 import Mining from '@/components/parts/Mining'
 
+import pollVault from '@/components/logic/vault/methods/pollVault'
+import createVault from '@/components/logic/vault/methods/createVault'
+import getVault from '@/components/logic/vault/methods/getVault'
+
 import { defaultMarket } from '../config'
 
-import marketABI from '../../contracts/erc20/build/contracts/Market.json'
-
 export default {
-  name: 'HelloWorld',
+  name: 'Vault',
   components: {
     Header,
     Sidebar,
@@ -40,41 +41,9 @@ export default {
     ActionRequired
   },
   methods: {
-    getVault: function () {
-      const marketAddress = this.market.address
-      const marketplace = marketABI.abi
-      const contract = web3.eth.contract(marketplace).at(marketAddress)
-
-      contract.vaults.call(web3.eth.coinbase, (err, resp) => {
-        if (err) console.warn('Error getting vault address', err)
-        this.$root.$data.vault = resp
-      })
-    },
-    createVault: function () {
-      const marketAddress = this.market.address
-      this.$root.$data.actionRequired = true
-      web3.eth.sendTransaction({
-        from: web3.eth.coinbase,
-        to: marketAddress,
-        value: 0,
-        data: '0x0a'
-      }, (err, resp) => {
-        this.$root.$data.actionRequired = false
-        if (err) console.warn('err creating vault', err)
-        this.$root.$data.waitingForTx = true
-        this.createTx = resp
-        this.pollVault()
-      })
-    },
-    pollVault: function () {
-      this.vaultCheck = setInterval(() => {
-        this.getVault()
-        if (this.$root.$data.vault !== '0x0000000000000000000000000000000000000000') {
-          this.$root.$data.waitingForTx = false
-          clearInterval(this.vaultCheck)
-        }
-      }, 5000)
-    }
+    getVault,
+    createVault,
+    pollVault
   },
   data () {
     return {

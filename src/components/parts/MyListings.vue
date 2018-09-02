@@ -14,8 +14,8 @@
           <th></th>
         </thead>
         <tbody>
-          <tr v-for="listing in listings" v-bind:key="listing.id" v-if="$root.$data.tokens[listing.asset]">
-            <td class="small_td">
+          <tr v-for="listing in listings" v-bind:key="listing.id">
+              <td class="small_td">
               <div class="asset_circle" v-html="getJazzicon(listing.merchant).outerHTML"></div>
             </td>
             <td class="small_td center">
@@ -26,12 +26,18 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span>{{ $root.$data.tokens[listing.asset].name }}</span>
+                <span v-if="$root.$data.tokens[listing.asset]">{{ $root.$data.tokens[listing.asset].name }}</span>
+                <span v-else>
+                  <i class="fa fa-spin fa-spinner-third"></i> Fetching from chain...
+                </span>
               </span>
             </td>
             <td>
-              <span class="asset_quantity">
+              <span class="asset_quantity" v-if="$root.$data.tokens[listing.asset]">
                 {{ (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+              <span v-else>
+                <i class="fa fa-spin fa-spinner-third"></i>
               </span>
             </td>
             <td>
@@ -40,8 +46,11 @@
               </span>
             </td>
             <td>
-              <span class="asset_cost">
+              <span class="asset_cost" v-if="$root.$data.tokens[listing.asset]">
                 <img height="10" src="/static/img/logo_purple.png" /> {{ ((listing.value / Math.pow(10, 18)).toFixed(2) / (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+              <span v-else>
+                <i class="fa fa-spin fa-spinner-third"></i>
               </span>
             </td>
             <td class="controls">
@@ -56,10 +65,11 @@
   </div>
 </template>
 <script>
-/* global web3 */
 import Loader from '@/components/parts/Loader'
-import { apiAddress } from '../../config'
-import jazzicon from 'jazzicon'
+
+import getJazzicon from '@/components/logic/global/methods/getJazzicon'
+import getListings from '@/components/logic/myListings/methods/getListings'
+import data from '@/components/logic/myListings/data'
 
 export default {
   name: 'Listings',
@@ -67,56 +77,15 @@ export default {
     Loader
   },
   data () {
-    return {
-      fetching: true,
-      loading: true,
-      showTxDialog: false,
-      showTxCancelledDialog: false,
-      listings: [],
-      tokenNames: {},
-      keyword: ''
-    }
+    return data
   },
   created () {
     this.getListings('')
     // TODO: poll listings
   },
   methods: {
-    getJazzicon: (seed, size = 35) => {
-      const addr = seed.slice(2, 10)
-      return jazzicon(size, parseInt(addr, 16))
-    },
-    setSearchString: function (type, str) {
-      this.keyword = type === 'raw' ? str : type + ':' + str
-      this.getListings(this.keyword)
-    },
-    getListings: function (keywords) {
-      let payload = {
-        market_address: this.$root.$data.market.address,
-        merchant: web3.toChecksumAddress(web3.eth.coinbase)
-      }
-      // TODO: Make market address correlate to market dropdown
-      fetch(`${apiAddress}/market/listings/filtered`,
-        {
-          method: 'post',
-          'Content-Type': 'application/json',
-          body: JSON.stringify(payload)
-        })
-        .then((response) => {
-          return response.json()
-        })
-        .then((json) => {
-          this.listings = json.data.reverse()
-
-          this.listings.map(listing => {
-            if (!this.tokenNames[listing.asset]) {
-              this.$root.getToken(listing.asset)
-            }
-          })
-
-          this.fetching = false
-        })
-    }
+    getJazzicon,
+    getListings
   }
 }
 </script>

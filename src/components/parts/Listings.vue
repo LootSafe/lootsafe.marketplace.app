@@ -27,7 +27,7 @@
           <th></th>
         </thead>
         <tbody>
-          <tr v-for="listing in listings" v-bind:key="listing.id" v-if="$root.$data.tokens[listing.asset]">
+          <tr v-for="listing in listings" v-bind:key="listing.id">
             <td class="small_td">
               <div class="asset_circle" v-html="getJazzicon(listing.merchant).outerHTML"></div>
             </td>
@@ -39,12 +39,18 @@
             </td>
             <td>
               <span class="asset_name" :title="listing.asset">
-                <span>{{ $root.$data.tokens[listing.asset].name }}</span>
+                <span v-if="$root.$data.tokens[listing.asset]">{{ $root.$data.tokens[listing.asset].name }}</span>
+                <span v-else>
+                  <i class="fa fa-spin fa-spinner-third"></i> Fetching from chain...
+                </span>
               </span>
             </td>
             <td>
-              <span class="asset_quantity">
+              <span class="asset_quantity" v-if="$root.$data.tokens[listing.asset]">
                 {{ (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+              <span v-else>
+                <i class="fa fa-spin fa-spinner-third"></i>
               </span>
             </td>
             <td>
@@ -53,8 +59,11 @@
               </span>
             </td>
             <td>
-              <span class="asset_cost">
+              <span class="asset_cost" v-if="$root.$data.tokens[listing.asset]">
                 <img height="10" src="/static/img/logo_purple.png" /> {{ ((listing.value / Math.pow(10, 18)).toFixed(2) / (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+              <span v-else>
+                <i class="fa fa-spin fa-spinner-third"></i>
               </span>
             </td>
             <td class="controls">

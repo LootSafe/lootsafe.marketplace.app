@@ -8,6 +8,14 @@
   pointer-events: none;
 }
 
+i {
+  color: #a1a2cd;
+}
+
+button i {
+  color: #ffffff;
+}
+
 .v-step .v-step__arrow[data-v-570be51d] {
   border-color: #363959;
 }
@@ -552,6 +560,7 @@ table {
 .listings tbody tr:nth-child(even) {
 	background: #212235 !important;
 }
+
 
 .fa-exchange, .asset_name, .asset_quantity, .asset_cost {
 	color: #a1a2cd !important;

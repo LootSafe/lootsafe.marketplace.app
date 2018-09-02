@@ -37,7 +37,7 @@
                 <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank"><fa class="far fa-eye"></fa> &nbsp;View Address</a>
               </li>
               <li>
-                <a href="#" class="account"><fa class="far fa-file-contract"></fa>  &nbsp; View Contracts</a>
+                <a :href="etherscan + 'address/' + $root.$data.market.address" class="account" target="_blank"><fa class="far fa-file-contract"></fa>  &nbsp; View Contracts</a>
               </li>
             </ul>
           </div>
@@ -56,8 +56,15 @@
 </template>
 
 <script>
-import { apiAddress, etherscan } from '../../config'
-import jazzicon from 'jazzicon'
+import data from '@/components/logic/header/data'
+import restartTour from '@/components/logic/header/methods/restartTour'
+import getProfileIcon from '@/components/logic/header/methods/getProfileIcon'
+import setActiveLink from '@/components/logic/header/methods/setActiveLink'
+import toggleMarketSelectDropdown from '@/components/logic/header/methods/toggleMarketSelectDropdown'
+import toggleAccountDropdown from '@/components/logic/header/methods/toggleAccountDropdown'
+import setMarket from '@/components/logic/header/methods/setMarket'
+import getDailyVolume from '@/components/logic/header/methods/getDailyVolume'
+import getMarkets from '@/components/logic/header/methods/getMarkets'
 
 export default {
   name: 'Header',
@@ -66,58 +73,17 @@ export default {
     this.getDailyVolume()
   },
   methods: {
-    restartTour: function () {
-      localStorage.setItem('tour-opt-out', 'false')
-      this.$router.push('/')
-      this.$parent.restartTour()
-    },
-    getProfileIcon: function () {
-      const addr = this.$root.$data.account.slice(2, 10)
-      const seed = parseInt(addr, 16)
-      return jazzicon(25, seed)
-    },
-    setActiveLink: function (route) {
-      this.$parent.$parent.activeLink = route
-      this.$router.push(route)
-    },
-    toggleMarketSelectDropdown: function () {
-      this.showMarketSelect = !this.showMarketSelect
-    },
-    toggleAccountDropdown: function () {
-      this.showAccount = !this.showAccount
-    },
-    setMarket: function (market) {
-      this.$root.$data.market = market
-      this.showMarketSelect = false
-    },
-    getDailyVolume: function () {
-      fetch(`${apiAddress}/market/volume`)
-        .then((response) => {
-          return response.json()
-        })
-        .then((json) => {
-          this.dailyVolume = json.data
-        })
-    },
-    getMarkets: function () {
-      fetch(`${apiAddress}/market/list`)
-        .then((response) => {
-          return response.json()
-        })
-        .then((json) => {
-          this.markets = json.data
-        })
-    }
+    restartTour,
+    getProfileIcon,
+    setActiveLink,
+    toggleMarketSelectDropdown,
+    toggleAccountDropdown,
+    setMarket,
+    getDailyVolume,
+    getMarkets
   },
   data () {
-    return {
-      showAccount: false,
-      etherscan,
-      activeLink: '/',
-      dailyVolume: 0,
-      showMarketSelect: false,
-      markets: []
-    }
+    return data
   }
 }
 </script>

@@ -1,4 +1,5 @@
 import { apiAddress } from '@//config'
+import ethereumAddress from 'ethereum-address'
 
 export default function (keywords) {
   let payload = {

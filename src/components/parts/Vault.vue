@@ -69,64 +69,17 @@
 </template>
 
 <script>
-import { defaultTokens, etherscan } from '../../config'
-import ethereumAddress from 'ethereum-address'
-import jazzicon from 'jazzicon'
+import copyDepositAddr from '@/components/logic/vault/methods/copyDepositAddr'
+import addValToken from '@/components/logic/vault/methods/addValToken'
+import getJazzicon from '@/components/logic/global/methods/getJazzicon'
+import data from '@/components/logic/vault/data'
 
 export default {
   name: 'Vault',
   methods: {
-    getJazzicon: (seed, size = 35) => {
-      const addr = seed.slice(2, 10)
-      return jazzicon(size, parseInt(addr, 16))
-    },
-    copyDepositAddr (event) {
-      const buttonDefStr = 'Copy Deposit Address'
-      const copiedStr = 'Copied!'
-
-      this.$refs.clipboard.select()
-      document.execCommand('copy')
-
-      this.copyStrText = copiedStr
-
-      setTimeout(function () {
-        this.copyStrText = buttonDefStr
-      }.bind(this), 5000)
-    },
-    addValToken () {
-      let addAlreadyExists = false
-
-      if (this.$refs.checkme.value in this.$root.$data.tokens) {
-        addAlreadyExists = true
-      }
-
-      if (localStorage.getItem('custom_tokens') && this.$refs.checkme.value in JSON.parse(localStorage.getItem('custom_tokens'))) {
-        addAlreadyExists = true
-      }
-
-      if (ethereumAddress.isAddress(this.$refs.checkme.value) && !addAlreadyExists) {
-        this.closePopup()
-
-        let toke
-
-        if (localStorage.getItem('custom_tokens') == null) {
-          toke = [this.$refs.checkme.value]
-          localStorage.setItem('custom_tokens', JSON.stringify(toke))
-        } else {
-          toke = JSON.parse(localStorage.getItem('custom_tokens'))
-          toke.push(this.$refs.checkme.value)
-          localStorage.setItem('custom_tokens', JSON.stringify(toke))
-        }
-
-        defaultTokens.push(this.$refs.checkme.value)
-      } else {
-        this.invalidAddress = true
-
-        setTimeout(function () {
-          this.invalidAddress = false
-        }.bind(this), 3500)
-      }
-    },
+    getJazzicon,
+    copyDepositAddr,
+    addValToken,
     openPopup () {
       this.showAddToken = true
     },
@@ -135,16 +88,7 @@ export default {
     }
   },
   data () {
-    return {
-      defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens,
-      tokens: {},
-      withdrawDialog: false,
-      etherscan,
-      copyStrText: 'Copy Deposit Address',
-      showAddToken: false,
-      showValidationStatus: false,
-      invalidAddress: false
-    }
+    return data
   }
 }
 </script>
