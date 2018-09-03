@@ -10,9 +10,6 @@ export default {
   web3status: 'pending',
   msg: 'Welcome to Your Vue.js App',
   market: defaultMarket,
-  tourCallbacks: {
-    onStop: this.endTour
-  },
   steps: [
     {
       target: 'header',

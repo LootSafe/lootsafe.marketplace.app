@@ -60,7 +60,11 @@ export default {
     getJazzicon
   },
   data () {
-    return data
+    return Object.assign({}, data, {
+      tourCallbacks: {
+        onStop: this.endTour
+      }
+    })
   }
 }
 </script>

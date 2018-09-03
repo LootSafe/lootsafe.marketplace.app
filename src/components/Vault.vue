@@ -29,7 +29,7 @@ import getVault from '@/components/logic/vault/methods/getVault'
 import { defaultMarket } from '../config'
 
 export default {
-  name: 'Vault',
+  name: 'HelloWorld',
   components: {
     Header,
     Sidebar,
