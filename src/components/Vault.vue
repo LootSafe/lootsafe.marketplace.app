@@ -3,6 +3,7 @@
     <Mining v-if="$root.$data.waitingForTx"></Mining>
     <GetMetamask v-if="$root.$data.web3status === 'missing'" />
     <ActionRequired v-if="$root.$data.actionRequired"></ActionRequired>
+    <Withdraw v-if="$root.$data.withdrawAsset"></Withdraw>
     <Header />
     <Sidebar />
     <Chat />
@@ -15,6 +16,7 @@
 <script>
 import Header from '@/components/parts/Header'
 import Sidebar from '@/components/parts/Sidebar'
+import Withdraw from '@/components/parts/Withdraw'
 import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
 import GetMetamask from '@/components/parts/GetMetamask'
@@ -38,7 +40,8 @@ export default {
     Listings,
     GetMetamask,
     Vault,
-    ActionRequired
+    ActionRequired,
+    Withdraw
   },
   methods: {
     getVault,

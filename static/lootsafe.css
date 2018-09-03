@@ -16,6 +16,10 @@ button i {
   color: #ffffff;
 }
 
+.success {
+  color: #03c59f;
+}
+
 .v-step .v-step__arrow[data-v-570be51d] {
   border-color: #363959;
 }

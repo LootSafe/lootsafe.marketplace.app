@@ -18,6 +18,7 @@ export default {
   tokens: {},
   pollInterval: 10,
   web3status: 'pending',
+  withdrawAsset: false,
   market: defaultMarket,
   defaultTokens: (localStorage.getItem('custom_tokens')) ? defaultTokens.concat(JSON.parse(localStorage.getItem('custom_tokens'))) : defaultTokens,
   pubnub: new PubNub({

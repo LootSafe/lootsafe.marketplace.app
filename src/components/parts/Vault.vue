@@ -44,7 +44,7 @@
               <i class="far fa-lock-alt" style="cursor: help;" title="Locked assets are not available for withdraw, locked assets are assets currently held in listings."></i> {{ (token.locked / Math.pow(10, token.decimals)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
             </td>
             <td class="rightAlign">
-              <button class="default small" v-on:click="withdrawDialog = token">
+              <button class="default small" v-on:click="withdraw(token)">
                 <i class="far fa-angle-double-right"></i> Withdraw
               </button>
             </td>
@@ -85,6 +85,9 @@ export default {
     },
     closePopup () {
       this.showAddToken = false
+    },
+    withdraw: function (asset) {
+      this.$root.$data.withdrawAsset = asset
     }
   },
   data () {
