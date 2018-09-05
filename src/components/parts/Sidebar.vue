@@ -8,7 +8,10 @@
         <i :class="$parent.$parent.activeLink === '/vault' ? 'fal fa-piggy-bank active' : $root.$data.vault === '0x0000000000000000000000000000000000000000' ? 'fal fa-piggy-bank pulse' : 'fal fa-piggy-bank'"></i>
       </li>
       <li v-if="$root.$data.web3status === 'connected'" v-on:click="setActiveLink('/listing/create')" id="listing_create" title="Create / Manage Listings">
-        <i :class="$parent.$parent.activeLink === '/listing/create' ? 'fal fa-ticket active' : 'fal fa-ticket'"></i>
+        <i :class="$parent.$parent.activeLink === '/listing/create' ? 'fal fa-plus-square active' : 'fal fa-plus-square'"></i>
+      </li>
+      <li id="history" title="History">
+        <i :class="$parent.$parent.activeLink === '/history' ? 'fal fa-history active' : 'fal fa-history'"></i>
       </li>
       <li class="soon">
         <i class="fal fa-stopwatch"></i>

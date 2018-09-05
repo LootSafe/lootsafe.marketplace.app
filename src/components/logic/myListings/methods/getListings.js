@@ -17,9 +17,9 @@ export default function () {
       return response.json()
     })
     .then((json) => {
-      this.listings = json.data.reverse()
+      this.$root.$data.listings = json.data
 
-      this.listings.map(listing => {
+      this.$root.$data.listings.map(listing => {
         if (!this.$root.$data.tokens[listing.asset]) {
           this.$root.getToken(listing.asset)
         }

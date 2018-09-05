@@ -11,6 +11,7 @@ export default {
   messages: [],
   activeUsers: 0,
   online: false,
+  listings: [],
   selectedListing: false,
   showTxDialog: false,
   showTxCancelledDialog: false,

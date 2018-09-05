@@ -16,6 +16,13 @@ button i {
   color: #ffffff;
 }
 
+.divider {
+  position: absolute;
+  top: 1rem;
+  bottom: 1rem;
+  border-left: 1px solid #6c66fb;
+}
+
 .success {
   color: #03c59f;
 }
@@ -56,7 +63,7 @@ body, html {
 
 a {
   color: #a1a2cd;
-  font-size: 8.5pt;
+  font-size: 9pt;
 	font-family: 'Open Sans', monospace;
 }
 
@@ -524,12 +531,6 @@ button.default {
 	background: #6c66fb;
 }
 
-button.clear {
-	background: transparent;
-  position: absolute;
-  right: 10.5rem;
-}
-
 button.default:hover {
 	background: #7973f9;
 }
@@ -771,26 +772,6 @@ hr {
   padding: 2rem;
   font-size: 10pt;
   border-radius: 5px;
-}
-
-.double_wide {
-  width: 55rem !important;
-  left: calc(50% - 27.5rem) !important;
-  padding: 0 !important;
-}
-
-.half_container {
-  width: calc(50% - 4rem - 1px);
-  padding: 2rem;
-  float: left;
-}
-
-.divider {
-  position: absolute;
-  top: 2rem;
-  left: 27rem;
-  bottom: 2rem;
-  border-left: 1px solid #272942;
 }
 
 #view_listing button {

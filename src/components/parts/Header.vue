@@ -34,10 +34,18 @@
           <div v-if="showAccount" class="account-dropdown">
             <ul>
               <li>
-                <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank"><fa class="far fa-eye"></fa> &nbsp;View Address</a>
+                <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank">
+                  <i class="far fa-coins"></i> &nbsp;Balances ({{ (parseInt($root.$data.tokens["0xAE7Fed61555838b7C38684DF0E35ef19BDA405Ee"].balance.toString()) / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }})
+                </a>
               </li>
               <li>
-                <a :href="etherscan + 'address/' + $root.$data.market.address" class="account" target="_blank"><fa class="far fa-file-contract"></fa>  &nbsp; View Contracts</a>
+                <a class="account" :href="etherscan + 'address/' + $root.$data.account" target="_blank"><i class="far fa-eye"></i> &nbsp;View Address</a>
+              </li>
+              <li>
+                <a :href="etherscan + 'address/' + $root.$data.market.address" class="account" target="_blank"><i class="far fa-file-contract"></i>  &nbsp; View Contracts</a>
+              </li>
+              <li>
+                <a href="https://documenter.getpostman.com/view/254497/RWMLL6aa" target="_blank" class="account"><i class="far fa-cogs"></i>  &nbsp; API Docs</a>
               </li>
             </ul>
           </div>

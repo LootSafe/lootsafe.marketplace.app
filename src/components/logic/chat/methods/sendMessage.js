@@ -4,7 +4,8 @@ export default function (message) {
     channel: 'trade_chat',
     message: {
       account: this.$root.$data.account,
-      content: message
+      content: message,
+      timestamp: new Date().toLocaleTimeString()
     }
   }
   this.pubnub.publish(publishConfig, function (status, response) {

@@ -11,7 +11,7 @@
     <Chat />
     <div id="main_content">
       <div id="vault">
-        <h1><i class="fal fa-ticket"></i> Listing Managment</h1>
+        <h1 style="color: #fff;"><i class="fal fa-plus-square" style="color: #fff;"></i> Create Listings</h1>
         <p>Here you can create and view listings. To create a listing insure you've deposited the item into your vault prior to attempting to sell.</p>
         <hr>
         <div class="lightBG">
@@ -46,7 +46,7 @@
             </div>
           </div>
           <hr>
-          <h2>Your Listings</h2>
+          <h2>Your Recent Listings</h2>
           <hr>
           <MyListings v-if="$root.$data.web3status === 'connected'" />
         </div>

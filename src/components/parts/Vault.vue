@@ -1,6 +1,6 @@
 <template>
   <div id="vault">
-    <h1><i class="fal fa-piggy-bank"></i> Vault</h1>
+    <h1 style="color: #fff;"><i class="fal fa-piggy-bank" style="color: #fff;"></i> Vault</h1>
     <p>Your vault holds everything you want to trade in the marketplace, to start trading create a vault and deposit assets you wish to trade.</p>
     <hr>
     <div v-if="$root.$data.vault !== '0x0000000000000000000000000000000000000000'">
@@ -53,15 +53,19 @@
       </table>
     </div>
     <div v-if="showAddToken !== false">
-      <div class="popupmask"></div>
-      <div id="get_metamask">
-        <h2>Track New Token</h2>
+      <div class="popupmask" style="position: fixed"></div>
+      <div id="get_metamask" style="position: fixed">
+        <h1 style="text-align: center;">
+          <i class="far fa-heartbeat" style="font-size: 45pt; color: #ffeaa7;"></i>
+        </h1>
+        <h2 style="text-align: center;">Track New Token</h2>
+        <p>Allows you to watch for balance updates and create listings for this token.</p>
         <br />
         <input id="validate_address" class="full_input" type="text" placeholder="0x0000000000000000000000000000000000000000" ref="checkme"/>
         <br />
         <br>
-        <button class="half" v-on:click="addValToken($event)"> Add</button>
-        <button class="info half" v-on:click="closePopup($event)"> Cancel</button>
+        <button class="default" style="width: calc(50% - 1.5rem);" v-on:click="addValToken($event)"> Add</button>
+        <button class="info" style="width: calc(50% - 1.5rem);" v-on:click="closePopup($event)"> Cancel</button>
         <p v-if="invalidAddress !== false" style="color:red"> Invalid Address</p>
       </div>
     </div>

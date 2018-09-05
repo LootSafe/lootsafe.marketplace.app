@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import VueTour from 'vue-tour'
 import Eth from 'ethjs'
+import Notifications from 'vue-notification'
 
 /* global web3 */
 import {
@@ -26,6 +27,7 @@ const eth = new Eth(new Eth.HttpProvider(provider)) // eslint-disable-line no-un
 Vue.config.productionTip = false
 
 Vue.use(VueTour)
+Vue.use(Notifications)
 
 /* eslint-disable no-new */
 new Vue({

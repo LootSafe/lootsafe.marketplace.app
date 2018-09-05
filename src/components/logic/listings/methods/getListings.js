@@ -1,4 +1,4 @@
-import { apiAddress } from '@//config'
+import { apiAddress } from '@/config'
 import ethereumAddress from 'ethereum-address'
 
 export default function (keywords) {
@@ -32,9 +32,9 @@ export default function (keywords) {
         return response.json()
       })
       .then((json) => {
-        this.listings = json.data
+        this.$root.$data.listings = json.data
 
-        this.listings.map(listing => {
+        this.$root.$data.listings.map(listing => {
           if (!this.$root.$data.tokens[listing.asset]) {
             this.$root.getToken(listing.asset)
           }
@@ -48,7 +48,7 @@ export default function (keywords) {
         return response.json()
       })
       .then((json) => {
-        this.listings = json.data
+        this.$root.$data.listings = json.data
 
         this.listings.map(listing => {
           if (!this.$root.$data.tokens[listing.asset]) {

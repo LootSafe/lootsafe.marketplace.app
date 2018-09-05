@@ -2,7 +2,7 @@ module.exports = {
   apiAddress: 'http://71.237.7.8:8000',
   provider: 'https://kovan.infura.io',
   etherscan: 'https://kovan.etherscan.io/',
-  cacherWSServer: 'ws://71.237.7.8:1338',
+  cacherWSServer: 'ws://71.237.7.8:1812',
   defaultTokens: [
     '0xAE7Fed61555838b7C38684DF0E35ef19BDA405Ee',
     '0x16056734afb539A029Af949b56F968B3baE0c064',

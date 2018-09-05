@@ -14,8 +14,11 @@
       <p v-if="error" class="error">{{ error }}</p>
       <p v-if="success" class="success">{{ success }}</p>
       <br>
-      <button class="default" v-on:click="checkWithdraw()" v-if="!success">
+      <button class="default" v-on:click="checkWithdraw()" v-if="!success" style="width: calc(50% - 1.5rem);">
         Withdraw
+      </button>
+      <button class="info" v-on:click="$root.$data.withdrawAsset = false" v-if="!success" style="width: calc(50% - 1.5rem);">
+        Cancel
       </button>
       <button v-else class="default" v-on:click="$root.$data.withdrawAsset = false">
         Okay

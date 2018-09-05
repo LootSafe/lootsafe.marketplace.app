@@ -9,12 +9,12 @@
         <th>ASSET</th>
           <th align="left">NAME</th>
           <th align="left">QUANTITY</th>
-          <th align="left">COST</th>
           <th align="left">COST PER UNIT</th>
+          <th align="left">TOTAL COST</th>
           <th></th>
         </thead>
         <tbody>
-          <tr v-for="listing in listings" v-bind:key="listing.id">
+          <tr v-for="listing in $root.$data.listings" v-bind:key="JSON.stringify(listing)" :class="listing.flash ? 'animated fadeIn' : ''">
               <td class="small_td">
               <div class="asset_circle" v-html="getJazzicon(listing.merchant).outerHTML"></div>
             </td>
@@ -41,11 +41,6 @@
               </span>
             </td>
             <td>
-              <span class="asset_cost">
-                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
-              </span>
-            </td>
-            <td>
               <span class="asset_cost" v-if="$root.$data.tokens[listing.asset]">
                 <img height="10" src="/static/img/logo_purple.png" /> {{ ((listing.value / Math.pow(10, 18)).toFixed(2) / (listing.amount / Math.pow(10, $root.$data.tokens[listing.asset].decimals)).toFixed(2)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
@@ -53,9 +48,14 @@
                 <i class="fa fa-spin fa-spinner-third"></i>
               </span>
             </td>
+            <td>
+              <span class="asset_cost">
+                <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+              </span>
+            </td>
             <td class="controls">
               <button class="danger" v-if="$root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000' && listing.status === 0" v-on:click="$root.cancelListing(listing)">CANCEL</button>
-              <button v-else class="disabled">CANCEL</button>
+              <button v-else class="disabled">CLOSED</button>
               <button class="detail" v-on:click="$root.$data.selectedListing = listing; $root.$data.viewListing = true"><i class="far fa-eye"></i></button>
             </td>
           </tr>

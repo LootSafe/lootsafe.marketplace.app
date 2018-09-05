@@ -10,7 +10,7 @@
     </div>
 
     <div id="chat_container" ref="message_container">
-      <div class="message" v-for="message in $root.$data.messages" :key="message.time + message.account">
+      <div class="message" v-for="message in $root.$data.messages" :key="message.time + message.account" v-on:load="toBottom()">
         <div class="left">
           <div v-if="message.account" class="chat_circle" v-html="getJazzicon(message.account, 30).outerHTML"></div>
         </div>
@@ -47,6 +47,10 @@ export default {
     return data
   },
   methods: {
+    updated: function () {
+      const container = this.$el.querySelector('#chat_container')
+      container.scrollTop = container.scrollHeight
+    },
     viewListing,
     messageParser,
     generateUsername: function (seed) {
