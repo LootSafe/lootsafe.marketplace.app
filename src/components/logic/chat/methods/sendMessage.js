@@ -5,7 +5,7 @@ export default function (message) {
     message: {
       account: this.$root.$data.account,
       content: message,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: Date.now()
     }
   }
   this.pubnub.publish(publishConfig, function (status, response) {

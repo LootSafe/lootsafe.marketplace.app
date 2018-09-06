@@ -10,13 +10,13 @@
     </div>
 
     <div id="chat_container" ref="message_container">
-      <div class="message" v-for="message in $root.$data.messages" :key="message.time + message.account" v-on:load="toBottom()">
+      <div class="message" v-for="message in $root.$data.messages" :key="message.time + message.account">
         <div class="left">
           <div v-if="message.account" class="chat_circle" v-html="getJazzicon(message.account, 30).outerHTML"></div>
         </div>
         <div class="right">
           <p class="name">{{ generateUsername(message.account) }}</p>
-          <p class="time">{{ message.timestamp }}</p>
+          <p class="time">{{ new Date(message.timestamp).toLocaleTimeString() }}</p>
           <p class="body" v-html="messageParser(message.content).msg" v-on:click="viewListing(messageParser(message.content).listing)"></p>
         </div>
       </div>

@@ -63,21 +63,30 @@ export default {
     Chart
   },
   mounted () {
-    fetch(`${apiAddress}/market/lastsell?asset=${web3.toChecksumAddress(this.$root.$data.selectedListing.asset)}`)
-      .then((response) => {
-        return response.json()
+    const doWorkSon = () => {
+      fetch(`${apiAddress}/market/lastsell?asset=${web3.toChecksumAddress(this.$root.$data.selectedListing.asset)}`)
+        .then((response) => {
+          return response.json()
+        })
+        .then((json) => {
+          this.lastSell = json.data.value / (json.data.amount / Math.pow(10, this.$root.$data.tokens[this.$root.$data.selectedListing.asset].decimals))
+        })
+      fetch(`${apiAddress}/market/lowestask?asset=${web3.toChecksumAddress(this.$root.$data.selectedListing.asset)}`)
+        .then((response) => {
+          return response.json()
+        })
+        .then((json) => {
+          this.lowestAskListing = json.data
+          this.lowestAsk = json.data.per
+        })
+    }
+    if (this.$root.$data.tokens[this.$root.$data.selectedListing.asset]) {
+      doWorkSon()
+    } else {
+      this.$root.getToken(this.$root.$data.selectedListing.asset).then(() => {
+        doWorkSon()
       })
-      .then((json) => {
-        this.lastSell = json.data.value / (json.data.amount / Math.pow(10, this.$root.$data.tokens[this.$root.$data.selectedListing.asset].decimals))
-      })
-    fetch(`${apiAddress}/market/lowestask?asset=${web3.toChecksumAddress(this.$root.$data.selectedListing.asset)}`)
-      .then((response) => {
-        return response.json()
-      })
-      .then((json) => {
-        this.lowestAskListing = json.data
-        this.lowestAsk = json.data.per
-      })
+    }
   },
   methods: {
     translateStatus: status => {

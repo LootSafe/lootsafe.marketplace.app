@@ -10,7 +10,7 @@
       <li v-if="$root.$data.web3status === 'connected'" v-on:click="setActiveLink('/listing/create')" id="listing_create" title="Create / Manage Listings">
         <i :class="$parent.$parent.activeLink === '/listing/create' ? 'fal fa-plus-square active' : 'fal fa-plus-square'"></i>
       </li>
-      <li id="history" title="History">
+      <li v-if="$root.$data.web3status === 'connected'" v-on:click="setActiveLink('/history')" id="history" title="History">
         <i :class="$parent.$parent.activeLink === '/history' ? 'fal fa-history active' : 'fal fa-history'"></i>
       </li>
       <li class="soon">

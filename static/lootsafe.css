@@ -524,6 +524,15 @@ button.default {
 	background: #6c66fb;
 }
 
+.history_scroll {
+  position: absolute;
+  bottom: 0;
+  top: 9rem;
+  right: 2rem;
+  left: 2rem;
+  overflow-y: scroll;
+}
+
 button.clear {
 	background: transparent;
   position: absolute;
