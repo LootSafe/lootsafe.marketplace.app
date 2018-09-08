@@ -20,6 +20,7 @@
 
 <script>
 import Header from '@/components/parts/Header'
+import Heartbeat from '@/components/parts/Heartbeat'
 import Sidebar from '@/components/parts/Sidebar'
 import Chat from '@/components/parts/Chat'
 import Listings from '@/components/parts/Listings'
@@ -37,6 +38,7 @@ import getJazzicon from '@/components/logic/global/methods/getJazzicon'
 export default {
   name: 'HelloWorld',
   components: {
+    Heartbeat,
     SearchHelp,
     Header,
     Sidebar,

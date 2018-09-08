@@ -66,6 +66,16 @@
                 <img height="10" src="/static/img/logo_purple.png" /> {{ (listing.value / Math.pow(10, 18)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
               </span>
             </td>
+            <!--
+            <td v-if="$root.$data.tokens[listing.asset]">
+              <MiniChart :asset="listing.asset" class="minichart" :height="20" :width="80"/>
+            </td>
+            <td v-else>
+              <div class="minichart">
+                <i class="fal fa-spin fa-spinner-third"></i>
+              </div>
+            </td>
+            -->
             <td class="controls">
               <button v-if="listing.status === 0 && listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase() && $root.$data.web3status === 'connected' && $root.$data.vault !== '0x0000000000000000000000000000000000000000'" v-on:click="$root.fulfill(listing)">FULFILL</button>
               <button v-else-if="listing.status === 0 && listing.merchant.toLowerCase() !== $root.$data.account.toLowerCase()" class="disabled">FULFILL</button>
@@ -87,6 +97,7 @@
 import Search from '@/components/parts/Search'
 import ViewListing from '@/components/parts/ViewListing'
 import Loader from '@/components/parts/Loader'
+import MiniChart from '@/components/parts/MiniChart'
 import data from '@/components/logic/listings/data'
 import handleNextPage from '@/components/logic/listings/methods/handleNextPage'
 import handlePrevPage from '@/components/logic/listings/methods/handlePrevPage'
@@ -99,7 +110,8 @@ export default {
   components: {
     Search,
     ViewListing,
-    Loader
+    Loader,
+    MiniChart
   },
   data () {
     return data

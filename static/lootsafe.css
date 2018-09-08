@@ -410,6 +410,14 @@ textarea, select, input, button { outline: none; }
 	overflow-y: scroll;
 }
 
+.minichart {
+  height: 20px !important;
+  width: 80px !important;
+  overflow: hidden;
+  float: right;
+  position: relative;
+}
+
 #chat_stats i {
 	color: #00b894;
 	font-size: 7pt;
@@ -419,7 +427,6 @@ textarea, select, input, button { outline: none; }
 	font-size: 8pt;
 	color: #a1a2cd;
 }
-
 
 .message {
 	width: 100%;
@@ -482,6 +489,11 @@ textarea, select, input, button { outline: none; }
 	width: 2rem;
 }
 
+#main {
+  position: absolute;
+  bottom: 1.5rem;
+}
+
 #main_content {
 	position: absolute;
 	right: 0;
@@ -533,6 +545,15 @@ button.default {
   overflow-y: scroll;
 }
 
+#heartbeat {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: red;
+  height: 1.5rem;
+  z-index: 100;
+}
 button.clear {
 	background: transparent;
   position: absolute;
